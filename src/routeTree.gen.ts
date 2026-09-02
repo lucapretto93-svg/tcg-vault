@@ -10,33 +10,155 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAcquistiRouteImport } from './routes/_authenticated/acquisti'
+import { Route as AuthenticatedCarteRouteImport } from './routes/_authenticated/carte'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedGradingRouteImport } from './routes/_authenticated/grading'
+import { Route as AuthenticatedImpostazioniRouteImport } from './routes/_authenticated/impostazioni'
+import { Route as AuthenticatedPrezziRouteImport } from './routes/_authenticated/prezzi'
+import { Route as AuthenticatedSealedRouteImport } from './routes/_authenticated/sealed'
+import { Route as AuthenticatedVenditeRouteImport } from './routes/_authenticated/vendite'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAcquistiRoute = AuthenticatedAcquistiRouteImport.update({
+  id: '/acquisti',
+  path: '/acquisti',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCarteRoute = AuthenticatedCarteRouteImport.update({
+  id: '/carte',
+  path: '/carte',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGradingRoute = AuthenticatedGradingRouteImport.update({
+  id: '/grading',
+  path: '/grading',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedImpostazioniRoute =
+  AuthenticatedImpostazioniRouteImport.update({
+    id: '/impostazioni',
+    path: '/impostazioni',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPrezziRoute = AuthenticatedPrezziRouteImport.update({
+  id: '/prezzi',
+  path: '/prezzi',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSealedRoute = AuthenticatedSealedRouteImport.update({
+  id: '/sealed',
+  path: '/sealed',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedVenditeRoute = AuthenticatedVenditeRouteImport.update({
+  id: '/vendite',
+  path: '/vendite',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/acquisti': typeof AuthenticatedAcquistiRoute
+  '/carte': typeof AuthenticatedCarteRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/grading': typeof AuthenticatedGradingRoute
+  '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/prezzi': typeof AuthenticatedPrezziRoute
+  '/sealed': typeof AuthenticatedSealedRoute
+  '/vendite': typeof AuthenticatedVenditeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/acquisti': typeof AuthenticatedAcquistiRoute
+  '/carte': typeof AuthenticatedCarteRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/grading': typeof AuthenticatedGradingRoute
+  '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/prezzi': typeof AuthenticatedPrezziRoute
+  '/sealed': typeof AuthenticatedSealedRoute
+  '/vendite': typeof AuthenticatedVenditeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/acquisti': typeof AuthenticatedAcquistiRoute
+  '/_authenticated/carte': typeof AuthenticatedCarteRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/grading': typeof AuthenticatedGradingRoute
+  '/_authenticated/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/_authenticated/prezzi': typeof AuthenticatedPrezziRoute
+  '/_authenticated/sealed': typeof AuthenticatedSealedRoute
+  '/_authenticated/vendite': typeof AuthenticatedVenditeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/acquisti'
+    | '/carte'
+    | '/dashboard'
+    | '/grading'
+    | '/impostazioni'
+    | '/prezzi'
+    | '/sealed'
+    | '/vendite'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/acquisti'
+    | '/carte'
+    | '/dashboard'
+    | '/grading'
+    | '/impostazioni'
+    | '/prezzi'
+    | '/sealed'
+    | '/vendite'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/acquisti'
+    | '/_authenticated/carte'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/grading'
+    | '/_authenticated/impostazioni'
+    | '/_authenticated/prezzi'
+    | '/_authenticated/sealed'
+    | '/_authenticated/vendite'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +170,108 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/acquisti': {
+      id: '/_authenticated/acquisti'
+      path: '/acquisti'
+      fullPath: '/acquisti'
+      preLoaderRoute: typeof AuthenticatedAcquistiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/carte': {
+      id: '/_authenticated/carte'
+      path: '/carte'
+      fullPath: '/carte'
+      preLoaderRoute: typeof AuthenticatedCarteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/grading': {
+      id: '/_authenticated/grading'
+      path: '/grading'
+      fullPath: '/grading'
+      preLoaderRoute: typeof AuthenticatedGradingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/impostazioni': {
+      id: '/_authenticated/impostazioni'
+      path: '/impostazioni'
+      fullPath: '/impostazioni'
+      preLoaderRoute: typeof AuthenticatedImpostazioniRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prezzi': {
+      id: '/_authenticated/prezzi'
+      path: '/prezzi'
+      fullPath: '/prezzi'
+      preLoaderRoute: typeof AuthenticatedPrezziRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sealed': {
+      id: '/_authenticated/sealed'
+      path: '/sealed'
+      fullPath: '/sealed'
+      preLoaderRoute: typeof AuthenticatedSealedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vendite': {
+      id: '/_authenticated/vendite'
+      path: '/vendite'
+      fullPath: '/vendite'
+      preLoaderRoute: typeof AuthenticatedVenditeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAcquistiRoute: typeof AuthenticatedAcquistiRoute
+  AuthenticatedCarteRoute: typeof AuthenticatedCarteRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGradingRoute: typeof AuthenticatedGradingRoute
+  AuthenticatedImpostazioniRoute: typeof AuthenticatedImpostazioniRoute
+  AuthenticatedPrezziRoute: typeof AuthenticatedPrezziRoute
+  AuthenticatedSealedRoute: typeof AuthenticatedSealedRoute
+  AuthenticatedVenditeRoute: typeof AuthenticatedVenditeRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAcquistiRoute: AuthenticatedAcquistiRoute,
+  AuthenticatedCarteRoute: AuthenticatedCarteRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGradingRoute: AuthenticatedGradingRoute,
+  AuthenticatedImpostazioniRoute: AuthenticatedImpostazioniRoute,
+  AuthenticatedPrezziRoute: AuthenticatedPrezziRoute,
+  AuthenticatedSealedRoute: AuthenticatedSealedRoute,
+  AuthenticatedVenditeRoute: AuthenticatedVenditeRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
