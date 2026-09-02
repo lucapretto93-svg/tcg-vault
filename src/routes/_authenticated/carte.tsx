@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { CardFormDialog } from "@/components/CardFormDialog";
+import { CardDetailDialog } from "@/components/CardDetailDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -60,9 +61,7 @@ function CartePage() {
     if (status !== "TUTTI") list = list.filter((i) => i.status === status);
     const term = q.trim().toLowerCase();
     if (term) {
-      list = list.filter((i) =>
-        `${itemTitle(i)} ${itemSubtitle(i)}`.toLowerCase().includes(term),
-      );
+      list = list.filter((i) => `${itemTitle(i)} ${itemSubtitle(i)}`.toLowerCase().includes(term));
     }
     const sorted = [...list];
     if (sort === "value") sorted.sort((a, b) => currentValue(b) - currentValue(a));
@@ -117,7 +116,11 @@ function CartePage() {
           <option value="roi">ROI</option>
           <option value="name">Nome</option>
         </select>
-        <Button variant="outline" size="sm" onClick={() => setView(view === "table" ? "cards" : "table")}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setView(view === "table" ? "cards" : "table")}
+        >
           {view === "table" ? "Vista card" : "Vista tabella"}
         </Button>
       </div>
@@ -152,6 +155,14 @@ function CartePage() {
                   <TableCell className="text-right">{pct(roi(i))}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1">
+                      <CardDetailDialog
+                        item={i}
+                        trigger={
+                          <Button variant="ghost" size="icon" aria-label="Apri dettaglio">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
                       <CardFormDialog
                         item={i}
                         trigger={
@@ -195,6 +206,14 @@ function CartePage() {
                   <span>{pct(roi(i))}</span>
                 </div>
                 <div className="flex justify-end gap-1 pt-2">
+                  <CardDetailDialog
+                    item={i}
+                    trigger={
+                      <Button variant="ghost" size="sm">
+                        <Eye className="mr-1 h-4 w-4" /> Dettaglio
+                      </Button>
+                    }
+                  />
                   <CardFormDialog
                     item={i}
                     trigger={
