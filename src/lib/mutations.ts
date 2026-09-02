@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { currentUserId } from "./queries";
-import type { PriceType } from "./types";
+import type { CardInput, PriceType } from "./types";
 
 export async function addPrice(input: {
   itemId: string;
@@ -25,16 +25,18 @@ export async function createItemWithPurchase(input: {
   item_type: "CARD" | "SEALED";
   card?: Record<string, unknown>;
   sealed?: Record<string, unknown>;
-  purchase?: {
-    purchase_date: string;
-    platform: string;
-    seller: string;
-    item_price: number;
-    shipping: number;
-    fees: number;
-    taxes: number;
-    notes: string;
-  } | undefined;
+  purchase?:
+    | {
+        purchase_date: string;
+        platform: string;
+        seller: string;
+        item_price: number;
+        shipping: number;
+        fees: number;
+        taxes: number;
+        notes: string;
+      }
+    | undefined;
   rawValue?: number | undefined;
   notes?: string | undefined;
 }) {
@@ -158,11 +160,47 @@ export async function uploadImage(itemId: string, file: File, type: "FRONT" | "B
   const { error: ie } = await supabase
     .from("card_images")
     .insert({ item_id: itemId, image_type: type, url: path, storage_path: path });
-  if (ie) throw new Error(ie.message);
+  if (ie) {
+    await supabase.storage.from("item-images").remove([path]);
+    throw new Error(ie.message);
+  }
+}
+
+export async function updateItemWithRawValue(
+  itemId: string,
+  card: CardInput,
+  notes: string,
+  rawValue?: number,
+) {
+  await updateCard(itemId, card, notes);
+
+  if (rawValue === undefined) return;
+
+  const { data, error } = await supabase
+    .from("market_prices")
+    .select("value")
+    .eq("item_id", itemId)
+    .eq("price_type", "RAW")
+    .order("observed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (Number(data?.value) === rawValue) return;
+
+  await addPrice({
+    itemId,
+    price_type: "RAW",
+    value: rawValue,
+    source: "Aggiornamento manuale",
+  });
 }
 
 export async function updateCard(itemId: string, card: Record<string, unknown>, notes?: string) {
-  const { error } = await supabase.from("cards").update(card as never).eq("item_id", itemId);
+  const { error } = await supabase
+    .from("cards")
+    .update(card as never)
+    .eq("item_id", itemId);
   if (error) throw new Error(error.message);
   const { error: ie } = await supabase
     .from("items")
@@ -171,7 +209,11 @@ export async function updateCard(itemId: string, card: Record<string, unknown>, 
   if (ie) throw new Error(ie.message);
 }
 
-export async function updateSealed(itemId: string, sealed: Record<string, unknown>, notes?: string) {
+export async function updateSealed(
+  itemId: string,
+  sealed: Record<string, unknown>,
+  notes?: string,
+) {
   const { error } = await supabase
     .from("sealed_products")
     .update(sealed as never)
@@ -185,7 +227,10 @@ export async function updateSealed(itemId: string, sealed: Record<string, unknow
 }
 
 export async function updateItemStatus(itemId: string, status: string) {
-  const { error } = await supabase.from("items").update({ status: status as never }).eq("id", itemId);
+  const { error } = await supabase
+    .from("items")
+    .update({ status: status as never })
+    .eq("id", itemId);
   if (error) throw new Error(error.message);
 }
 
