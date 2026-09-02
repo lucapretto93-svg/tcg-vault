@@ -15,8 +15,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createItemWithPurchase, updateCard } from "@/lib/mutations";
-import { LANGUAGES, type ItemRow } from "@/lib/types";
+import { createItemWithPurchase, updateItemWithRawValue } from "@/lib/mutations";
+import {
+  getCurrentRawValue,
+  getPurchaseCost,
+  LANGUAGES,
+  type CardInput,
+  type ItemRow,
+} from "@/lib/types";
 
 type Form = {
   pokemon_name: string;
@@ -85,6 +91,8 @@ function fromItem(item: ItemRow): Form {
     shadowless: !!c?.shadowless,
     promo: !!c?.promo,
     notes: item.notes ?? "",
+    rawValue: getCurrentRawValue(item)?.toString() ?? "",
+    purchasePrice: getPurchaseCost(item)?.toString() ?? "",
   };
 }
 
@@ -104,16 +112,44 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
+  const setFlag = (key: keyof Form, checked: boolean) => {
+    setForm((current) => {
+      const next = { ...current, [key]: checked };
+
+      if (checked && key === "first_edition") next.unlimited = false;
+      if (checked && key === "unlimited") next.first_edition = false;
+      if (checked && key === "holo") next.reverse_holo = false;
+      if (checked && key === "reverse_holo") next.holo = false;
+
+      return next;
+    });
+  };
+
   const mutation = useMutation({
     mutationFn: async () => {
-      const card = {
+      const currentYear = new Date().getFullYear();
+      const year = form.year ? Number(form.year) : null;
+      const rawValue = form.rawValue === "" ? undefined : Number(form.rawValue);
+      const purchasePrice = form.purchasePrice === "" ? undefined : Number(form.purchasePrice);
+
+      if (year !== null && (!Number.isInteger(year) || year < 1996 || year > currentYear)) {
+        throw new Error(`L'anno deve essere compreso tra 1996 e ${currentYear}`);
+      }
+      if (rawValue !== undefined && (!Number.isFinite(rawValue) || rawValue < 0)) {
+        throw new Error("Il valore raw non può essere negativo");
+      }
+      if (purchasePrice !== undefined && (!Number.isFinite(purchasePrice) || purchasePrice < 0)) {
+        throw new Error("Il prezzo di acquisto non può essere negativo");
+      }
+
+      const card: CardInput = {
         pokemon_name: form.pokemon_name.trim(),
         card_name: form.card_name.trim() || form.pokemon_name.trim(),
         set_name: form.set_name || null,
         set_code: form.set_code || null,
         card_number: form.card_number || null,
         set_total: form.set_total || null,
-        year: form.year ? Number(form.year) : null,
+        year,
         language: form.language || null,
         rarity: form.rarity || null,
         variant: form.variant || null,
@@ -125,21 +161,20 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
         promo: form.promo,
       };
       if (item) {
-        await updateCard(item.id, card, form.notes);
+        await updateItemWithRawValue(item.id, card, form.notes, rawValue);
         return;
       }
-      const price = Number(form.purchasePrice || 0);
       await createItemWithPurchase({
         item_type: "CARD",
         card,
         notes: form.notes,
-        rawValue: form.rawValue ? Number(form.rawValue) : undefined,
-        purchase: price
+        rawValue,
+        purchase: purchasePrice
           ? {
               purchase_date: new Date().toISOString().slice(0, 10),
               platform: "",
               seller: "",
-              item_price: price,
+              item_price: purchasePrice,
               shipping: 0,
               fees: 0,
               taxes: 0,
@@ -149,7 +184,10 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries();
+      qc.invalidateQueries({ queryKey: ["items"] });
+      if (!item && form.purchasePrice) {
+        qc.invalidateQueries({ queryKey: ["purchases"] });
+      }
       toast.success(item ? "Carta aggiornata" : "Carta aggiunta");
       setOpen(false);
       if (!item) setForm(emptyForm());
@@ -197,11 +235,7 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
           </div>
           <div className="space-y-1.5">
             <Label>Anno</Label>
-            <Input
-              type="number"
-              value={form.year}
-              onChange={(e) => set("year", e.target.value)}
-            />
+            <Input type="number" value={form.year} onChange={(e) => set("year", e.target.value)} />
           </div>
           <div className="space-y-1.5">
             <Label>Lingua</Label>
@@ -225,28 +259,33 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
             <Label>Variante</Label>
             <Input value={form.variant} onChange={(e) => set("variant", e.target.value)} />
           </div>
+          <div className="space-y-1.5">
+            <Label>Valore raw (€)</Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.rawValue}
+              onChange={(e) => set("rawValue", e.target.value)}
+            />
+          </div>
           {!item ? (
-            <>
-              <div className="space-y-1.5">
-                <Label>Valore raw (€)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={form.rawValue}
-                  onChange={(e) => set("rawValue", e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Prezzo acquisto (€)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={form.purchasePrice}
-                  onChange={(e) => set("purchasePrice", e.target.value)}
-                />
-              </div>
-            </>
-          ) : null}
+            <div className="space-y-1.5">
+              <Label>Prezzo acquisto (€)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.purchasePrice}
+                onChange={(e) => set("purchasePrice", e.target.value)}
+              />
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <Label>Costo acquisto (€)</Label>
+              <Input value={form.purchasePrice} disabled />
+            </div>
+          )}
         </div>
 
         <div className="mt-2 flex flex-wrap gap-4">
@@ -254,7 +293,7 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
             <label key={String(key)} className="flex items-center gap-2 text-sm">
               <Checkbox
                 checked={form[key] as boolean}
-                onCheckedChange={(v) => set(key, Boolean(v) as never)}
+                onCheckedChange={(v) => setFlag(key, Boolean(v))}
               />
               {label}
             </label>
