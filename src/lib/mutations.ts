@@ -34,9 +34,9 @@ export async function createItemWithPurchase(input: {
     fees: number;
     taxes: number;
     notes: string;
-  };
-  rawValue?: number;
-  notes?: string;
+  } | undefined;
+  rawValue?: number | undefined;
+  notes?: string | undefined;
 }) {
   const userId = await currentUserId();
   const { data: item, error } = await supabase
@@ -49,13 +49,13 @@ export async function createItemWithPurchase(input: {
   if (input.item_type === "CARD" && input.card) {
     const { error: e } = await supabase
       .from("cards")
-      .insert({ ...(input.card as never), item_id: item.id });
+      .insert({ ...(input.card as Record<string, unknown>), item_id: item.id } as never);
     if (e) throw new Error(e.message);
   }
   if (input.item_type === "SEALED" && input.sealed) {
     const { error: e } = await supabase
       .from("sealed_products")
-      .insert({ ...(input.sealed as never), item_id: item.id });
+      .insert({ ...(input.sealed as Record<string, unknown>), item_id: item.id } as never);
     if (e) throw new Error(e.message);
   }
 
@@ -159,4 +159,37 @@ export async function uploadImage(itemId: string, file: File, type: "FRONT" | "B
     .from("card_images")
     .insert({ item_id: itemId, image_type: type, url: path, storage_path: path });
   if (ie) throw new Error(ie.message);
+}
+
+export async function updateCard(itemId: string, card: Record<string, unknown>, notes?: string) {
+  const { error } = await supabase.from("cards").update(card as never).eq("item_id", itemId);
+  if (error) throw new Error(error.message);
+  const { error: ie } = await supabase
+    .from("items")
+    .update({ notes: notes ?? null })
+    .eq("id", itemId);
+  if (ie) throw new Error(ie.message);
+}
+
+export async function updateSealed(itemId: string, sealed: Record<string, unknown>, notes?: string) {
+  const { error } = await supabase
+    .from("sealed_products")
+    .update(sealed as never)
+    .eq("item_id", itemId);
+  if (error) throw new Error(error.message);
+  const { error: ie } = await supabase
+    .from("items")
+    .update({ notes: notes ?? null })
+    .eq("id", itemId);
+  if (ie) throw new Error(ie.message);
+}
+
+export async function updateItemStatus(itemId: string, status: string) {
+  const { error } = await supabase.from("items").update({ status: status as never }).eq("id", itemId);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteItem(itemId: string) {
+  const { error } = await supabase.from("items").delete().eq("id", itemId);
+  if (error) throw new Error(error.message);
 }
