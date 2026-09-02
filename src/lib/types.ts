@@ -251,14 +251,14 @@ export function getLatestCondition(item: ItemRow): ConditionRow | null {
   if (!item.condition_assessments.length) return null;
   return [...item.condition_assessments].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  )[0];
+  )[0] ?? null;
 }
 
 export function getLatestGrading(item: ItemRow): GradingRow | null {
   if (!item.grading_assessments.length) return null;
   return [...item.grading_assessments].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  )[0];
+  )[0] ?? null;
 }
 
 export function getLatestPrice(item: ItemRow, priceType: PriceType): PriceRow | null {
