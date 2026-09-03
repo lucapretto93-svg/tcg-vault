@@ -147,6 +147,26 @@ export async function saveGrading(input: Record<string, unknown> & { item_id: st
   if (error) throw new Error(error.message);
 }
 
+export async function saveGradingResult(
+  gradingId: string,
+  input: {
+    actual_company: string;
+    actual_grade: number;
+    certificate_number: string | null;
+    submitted_at: string | null;
+    graded_at: string | null;
+    returned_at: string | null;
+    actual_grading_cost: number | null;
+    result_notes: string | null;
+  },
+) {
+  const { error } = await supabase
+    .from("grading_assessments")
+    .update(input as never)
+    .eq("id", gradingId);
+  if (error) throw new Error(error.message);
+}
+
 export async function saveCondition(input: Record<string, unknown> & { item_id: string }) {
   const { error } = await supabase.from("condition_assessments").insert(input as never);
   if (error) throw new Error(error.message);
