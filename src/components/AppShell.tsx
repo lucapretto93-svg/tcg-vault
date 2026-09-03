@@ -15,6 +15,7 @@ import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { StatusLights, VaultLogo } from "@/components/VaultLogo";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -57,14 +58,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 
 function Brand() {
   return (
-    <div className="flex items-center gap-3 border-b border-sidebar-border px-5 py-4">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <Layers className="h-5 w-5" />
-      </div>
-      <div className="leading-tight">
-        <p className="text-sm font-semibold text-sidebar-foreground">Pokémon</p>
-        <p className="text-xs text-muted-foreground">Collection Manager</p>
-      </div>
+    <div className="pokedex-brand border-b border-sidebar-border px-4 py-4">
+      <VaultLogo />
+      <StatusLights />
     </div>
   );
 }
@@ -90,7 +86,7 @@ export function AppShell({
 
   return (
     <div className="app-viewport flex min-h-screen bg-background">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+      <aside className="pokedex-sidebar hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
         <Brand />
         <div className="flex-1 overflow-y-auto">
           <NavList />
@@ -103,7 +99,7 @@ export function AppShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="app-header sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur md:px-6">
+        <header className="app-header pokedex-header sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur md:px-6">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
@@ -128,7 +124,12 @@ export function AppShell({
           </Sheet>
 
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">{title}</h1>
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:block lg:hidden">
+                <VaultLogo compact />
+              </span>
+              <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">{title}</h1>
+            </div>
             {subtitle ? <p className="truncate text-xs text-muted-foreground">{subtitle}</p> : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">{actions}</div>
