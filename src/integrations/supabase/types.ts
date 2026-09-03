@@ -250,7 +250,12 @@ export type Database = {
           max_grade: number | null;
           min_grade: number | null;
           notes: string | null;
+          prob_psa1: number;
           prob_psa10: number;
+          prob_psa2: number;
+          prob_psa3: number;
+          prob_psa4: number;
+          prob_psa5: number;
           prob_psa6: number;
           prob_psa7: number;
           prob_psa8: number;
@@ -276,7 +281,12 @@ export type Database = {
           max_grade?: number | null;
           min_grade?: number | null;
           notes?: string | null;
+          prob_psa1?: number;
           prob_psa10?: number;
+          prob_psa2?: number;
+          prob_psa3?: number;
+          prob_psa4?: number;
+          prob_psa5?: number;
           prob_psa6?: number;
           prob_psa7?: number;
           prob_psa8?: number;
@@ -302,7 +312,12 @@ export type Database = {
           max_grade?: number | null;
           min_grade?: number | null;
           notes?: string | null;
+          prob_psa1?: number;
           prob_psa10?: number;
+          prob_psa2?: number;
+          prob_psa3?: number;
+          prob_psa4?: number;
+          prob_psa5?: number;
           prob_psa6?: number;
           prob_psa7?: number;
           prob_psa8?: number;
