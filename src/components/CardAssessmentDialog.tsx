@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveCondition, saveGrading } from "@/lib/mutations";
-import { CONDITIONS, RECOMMENDATIONS, type ItemRow } from "@/lib/types";
+import { CONDITIONS, PSA_GRADES, RECOMMENDATIONS, type ItemRow } from "@/lib/types";
 
 type Form = {
   overall_condition: string;
@@ -36,6 +36,11 @@ type Form = {
   min_grade: string;
   probable_grade: string;
   max_grade: string;
+  prob_psa1: string;
+  prob_psa2: string;
+  prob_psa3: string;
+  prob_psa4: string;
+  prob_psa5: string;
   prob_psa6: string;
   prob_psa7: string;
   prob_psa8: string;
@@ -80,6 +85,11 @@ function initialForm(): Form {
     min_grade: "",
     probable_grade: "",
     max_grade: "",
+    prob_psa1: "0",
+    prob_psa2: "0",
+    prob_psa3: "0",
+    prob_psa4: "0",
+    prob_psa5: "0",
     prob_psa6: "0",
     prob_psa7: "0",
     prob_psa8: "0",
@@ -115,6 +125,11 @@ export function CardAssessmentDialog({ item, trigger }: { item: ItemRow; trigger
         throw new Error("Il range deve rispettare: minimo ≤ probabile ≤ massimo, tra 1 e 10");
       }
       const probabilities = [
+        form.prob_psa1,
+        form.prob_psa2,
+        form.prob_psa3,
+        form.prob_psa4,
+        form.prob_psa5,
         form.prob_psa6,
         form.prob_psa7,
         form.prob_psa8,
@@ -152,11 +167,16 @@ export function CardAssessmentDialog({ item, trigger }: { item: ItemRow; trigger
         min_grade: min,
         probable_grade: probable,
         max_grade: max,
-        prob_psa6: probabilities[0],
-        prob_psa7: probabilities[1],
-        prob_psa8: probabilities[2],
-        prob_psa9: probabilities[3],
-        prob_psa10: probabilities[4],
+        prob_psa1: probabilities[0],
+        prob_psa2: probabilities[1],
+        prob_psa3: probabilities[2],
+        prob_psa4: probabilities[3],
+        prob_psa5: probabilities[4],
+        prob_psa6: probabilities[5],
+        prob_psa7: probabilities[6],
+        prob_psa8: probabilities[7],
+        prob_psa9: probabilities[8],
+        prob_psa10: probabilities[9],
         confidence: optionalNumber(form.confidence),
         recommendation: form.recommendation,
         grading_cost: optionalNumber(form.grading_cost),
@@ -262,7 +282,7 @@ export function CardAssessmentDialog({ item, trigger }: { item: ItemRow; trigger
             ))}
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {([6, 7, 8, 9, 10] as const).map((grade) => {
+            {PSA_GRADES.map((grade) => {
               const key = `prob_psa${grade}` as keyof Form;
               return (
                 <div key={grade} className="space-y-1.5">
@@ -279,8 +299,8 @@ export function CardAssessmentDialog({ item, trigger }: { item: ItemRow; trigger
             })}
           </div>
           <p className="text-xs text-muted-foreground">
-            Per ora la distribuzione economica usa PSA 6–10; il range minimo/probabile/massimo
-            accetta comunque voti da 1 a 10.
+            Distribuisci il 100% tra tutti i voti plausibili: il valore economico atteso userà
+            solamente i prezzi PSA inseriti per quei voti.
           </p>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
