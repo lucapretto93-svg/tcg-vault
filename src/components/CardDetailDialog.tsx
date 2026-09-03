@@ -1,9 +1,11 @@
 import { type ChangeEvent, type ReactNode, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Upload } from "lucide-react";
+import { ClipboardCheck, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { ItemPhoto } from "@/components/ItemPhoto";
 import { EbayListingAssistant } from "@/components/EbayListingAssistant";
+import { CardAssessmentDialog } from "@/components/CardAssessmentDialog";
+import { GradingResultDialog } from "@/components/GradingResultDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,6 +102,27 @@ export function CardDetailDialog({ item, trigger }: { item: ItemRow; trigger: Re
           <DialogTitle>{itemTitle(item)}</DialogTitle>
           <DialogDescription>{itemSubtitle(item)}</DialogDescription>
         </DialogHeader>
+
+        <div className="flex flex-wrap gap-2">
+          <CardAssessmentDialog
+            item={item}
+            trigger={
+              <Button variant="outline">
+                <ClipboardCheck className="h-4 w-4" /> Nuova analisi e stima
+              </Button>
+            }
+          />
+          {grading ? (
+            <GradingResultDialog
+              grading={grading}
+              trigger={
+                <Button variant="secondary">
+                  {grading.actual_grade ? "Aggiorna voto effettivo" : "Registra voto effettivo"}
+                </Button>
+              }
+            />
+          ) : null}
+        </div>
 
         <section className="grid gap-4 md:grid-cols-2">
           {[
@@ -224,6 +247,17 @@ export function CardDetailDialog({ item, trigger }: { item: ItemRow; trigger: Re
                 />
                 <Field label="Raccomandazione" value={grading.recommendation} />
                 <Field label="Costo grading" value={eur(gradingCost(item))} />
+                <Field label="Voto stimato" value={grading.probable_grade} />
+                <Field label="Voto effettivo" value={grading.actual_grade} />
+                <Field
+                  label="Scarto stima"
+                  value={
+                    grading.actual_grade !== null && grading.probable_grade !== null
+                      ? `${Number(grading.actual_grade) - Number(grading.probable_grade) >= 0 ? "+" : ""}${Number(grading.actual_grade) - Number(grading.probable_grade)}`
+                      : null
+                  }
+                />
+                <Field label="Certificato" value={grading.certificate_number} />
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">Nessuna valutazione registrata.</p>
