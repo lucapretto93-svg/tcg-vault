@@ -106,6 +106,14 @@ export interface GradingRow {
   recommendation: string | null;
   grading_cost: number | null;
   notes: string | null;
+  actual_company: string | null;
+  actual_grade: number | null;
+  certificate_number: string | null;
+  submitted_at: string | null;
+  graded_at: string | null;
+  returned_at: string | null;
+  actual_grading_cost: number | null;
+  result_notes: string | null;
   created_at: string;
 }
 
@@ -249,16 +257,20 @@ export function getSealedProduct(item: ItemRow): SealedRow | null {
 
 export function getLatestCondition(item: ItemRow): ConditionRow | null {
   if (!item.condition_assessments.length) return null;
-  return [...item.condition_assessments].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  )[0] ?? null;
+  return (
+    [...item.condition_assessments].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )[0] ?? null
+  );
 }
 
 export function getLatestGrading(item: ItemRow): GradingRow | null {
   if (!item.grading_assessments.length) return null;
-  return [...item.grading_assessments].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  )[0] ?? null;
+  return (
+    [...item.grading_assessments].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )[0] ?? null
+  );
 }
 
 export function getLatestPrice(item: ItemRow, priceType: PriceType): PriceRow | null {
@@ -311,7 +323,8 @@ export function getFrontImage(item: ItemRow): ImageRow | null {
   return (
     [...item.card_images]
       .filter((image) => image.image_type === "FRONT")
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] ?? null
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] ??
+    null
   );
 }
 
@@ -319,7 +332,8 @@ export function getBackImage(item: ItemRow): ImageRow | null {
   return (
     [...item.card_images]
       .filter((image) => image.image_type === "BACK")
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] ?? null
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] ??
+    null
   );
 }
 
