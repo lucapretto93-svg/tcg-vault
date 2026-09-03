@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/grading")({
       {
         name: "description",
         content:
-          "Valutazioni di grading con probabilità PSA 6-10, expected value e profitto atteso.",
+          "Valutazioni di grading con probabilità PSA 1-10, expected value e profitto atteso.",
       },
       { property: "og:title", content: "Grading — Pokémon Collection Manager" },
       { property: "og:description", content: "Probabilità PSA, uplift e profitto atteso." },
@@ -61,7 +61,7 @@ function GradingPage() {
                 <TableHead>Probabile</TableHead>
                 <TableHead>Effettivo</TableHead>
                 <TableHead>Scarto</TableHead>
-                <TableHead>PSA 6/7/8/9/10</TableHead>
+                <TableHead>PSA 1–10</TableHead>
                 <TableHead>Raccomandazione</TableHead>
                 <TableHead className="text-right">Valore raw</TableHead>
                 <TableHead className="text-right">Expected graded</TableHead>
@@ -92,7 +92,18 @@ function GradingPage() {
                     </TableCell>
                     <TableCell className="text-xs">
                       {g
-                        ? `${g.prob_psa6}/${g.prob_psa7}/${g.prob_psa8}/${g.prob_psa9}/${g.prob_psa10}`
+                        ? [
+                            g.prob_psa1,
+                            g.prob_psa2,
+                            g.prob_psa3,
+                            g.prob_psa4,
+                            g.prob_psa5,
+                            g.prob_psa6,
+                            g.prob_psa7,
+                            g.prob_psa8,
+                            g.prob_psa9,
+                            g.prob_psa10,
+                          ].join("/")
                         : "—"}
                     </TableCell>
                     <TableCell>
