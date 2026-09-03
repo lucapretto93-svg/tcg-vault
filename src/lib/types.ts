@@ -1,9 +1,34 @@
 export type ItemType = "CARD" | "SEALED";
 export type ItemStatus = "OWNED" | "GRADING" | "LISTED" | "SOLD";
-export type PriceType = "RAW" | "PSA6" | "PSA7" | "PSA8" | "PSA9" | "PSA10" | "SEALED";
+export type PriceType =
+  | "RAW"
+  | "PSA1"
+  | "PSA2"
+  | "PSA3"
+  | "PSA4"
+  | "PSA5"
+  | "PSA6"
+  | "PSA7"
+  | "PSA8"
+  | "PSA9"
+  | "PSA10"
+  | "SEALED";
 
-export const PRICE_TYPES: PriceType[] = ["RAW", "PSA6", "PSA7", "PSA8", "PSA9", "PSA10", "SEALED"];
-export const PSA_GRADES = [6, 7, 8, 9, 10] as const;
+export const PRICE_TYPES: PriceType[] = [
+  "RAW",
+  "PSA1",
+  "PSA2",
+  "PSA3",
+  "PSA4",
+  "PSA5",
+  "PSA6",
+  "PSA7",
+  "PSA8",
+  "PSA9",
+  "PSA10",
+  "SEALED",
+];
+export const PSA_GRADES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
 export const PRODUCT_TYPES = [
   "ETB",
@@ -97,6 +122,11 @@ export interface GradingRow {
   min_grade: number | null;
   probable_grade: number | null;
   max_grade: number | null;
+  prob_psa1: number;
+  prob_psa2: number;
+  prob_psa3: number;
+  prob_psa4: number;
+  prob_psa5: number;
   prob_psa6: number;
   prob_psa7: number;
   prob_psa8: number;
