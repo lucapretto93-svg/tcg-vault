@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusLights, VaultLogo } from "@/components/VaultLogo";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -80,10 +81,17 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+    <div className="auth-grid app-viewport flex min-h-screen items-center justify-center bg-background px-4 py-8">
+      <Card className="pokedex-auth w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border bg-red-950/35 px-6 py-4">
+          <VaultLogo />
+          <StatusLights />
+        </div>
         <CardHeader>
-          <CardTitle className="text-2xl">Pokémon Collection Manager</CardTitle>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-red-300">
+            Access terminal
+          </p>
+          <CardTitle className="text-2xl">Il tuo archivio TCG</CardTitle>
           <CardDescription>
             {mode === "login" ? "Accedi alla tua collezione" : "Crea il tuo account"}
           </CardDescription>
