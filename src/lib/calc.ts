@@ -71,6 +71,11 @@ export function expectedGradedValue(item: ItemRow): number {
   const g = latestGrading(item);
   if (!g) return 0;
   const pairs: [PriceType, number][] = [
+    ["PSA1", Number(g.prob_psa1)],
+    ["PSA2", Number(g.prob_psa2)],
+    ["PSA3", Number(g.prob_psa3)],
+    ["PSA4", Number(g.prob_psa4)],
+    ["PSA5", Number(g.prob_psa5)],
     ["PSA6", Number(g.prob_psa6)],
     ["PSA7", Number(g.prob_psa7)],
     ["PSA8", Number(g.prob_psa8)],
@@ -146,9 +151,7 @@ export function buildPortfolio(items: ItemRow[]): Portfolio {
 
   return {
     cardCount: owned.filter((i) => i.item_type === "CARD").length,
-    sealedCount: owned
-      .filter((i) => i.item_type === "SEALED")
-      .reduce((s, i) => s + quantity(i), 0),
+    sealedCount: owned.filter((i) => i.item_type === "SEALED").reduce((s, i) => s + quantity(i), 0),
     invested,
     currentValue: value,
     realized,
