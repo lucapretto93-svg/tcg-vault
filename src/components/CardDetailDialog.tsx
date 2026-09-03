@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import { ItemPhoto } from "@/components/ItemPhoto";
+import { EbayListingAssistant } from "@/components/EbayListingAssistant";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -256,6 +257,8 @@ export function CardDetailDialog({ item, trigger }: { item: ItemRow; trigger: Re
             <p className="whitespace-pre-wrap text-sm text-muted-foreground">{item.notes}</p>
           </section>
         )}
+
+        <EbayListingAssistant item={item} />
       </DialogContent>
     </Dialog>
   );
