@@ -5,16 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { itemsQuery } from "@/lib/queries";
-import {
-  buildPortfolio,
-  currentValue,
-  eur,
-  itemSubtitle,
-  itemTitle,
-  pct,
-  roi,
-} from "@/lib/calc";
+import { buildPortfolio, currentValue, eur, itemSubtitle, itemTitle, pct, roi } from "@/lib/calc";
 import { exportCsv, exportJson } from "@/lib/exporters";
+import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -25,7 +18,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
         content: "Metriche reali della collezione: capitale investito, valore, profitti e ROI.",
       },
       { property: "og:title", content: "Dashboard — Pokémon Collection Manager" },
-      { property: "og:description", content: "Capitale investito, valore corrente, profitti e ROI." },
+      {
+        property: "og:description",
+        content: "Capitale investito, valore corrente, profitti e ROI.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -68,6 +64,33 @@ function DashboardPage() {
         </>
       }
     >
+      <section className="pokedex-console mb-5 overflow-hidden rounded-2xl border border-red-500/25 p-4 sm:p-5">
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-red-300">
+              <ScanLine className="h-4 w-4" /> Archivio online
+            </div>
+            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
+              Scansiona. Valuta. Decidi.
+            </h2>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+              Il tuo centro di controllo per collezione, grading, acquisti e vendite.
+            </p>
+          </div>
+          <div className="pokedex-screen grid min-w-[190px] grid-cols-2 gap-3 rounded-xl p-3 text-xs">
+            <div className="flex items-center gap-2">
+              <Database className="h-4 w-4 text-cyan-300" /> Database
+            </div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-300" /> Protetto
+            </div>
+            <div className="col-span-2 flex items-center gap-2 border-t border-cyan-300/15 pt-2 text-cyan-200">
+              <Activity className="h-4 w-4" /> {items.length} oggetti sincronizzati
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Carte" value={String(p.cardCount)} hint="in collezione" />
         <Metric label="Sealed" value={String(p.sealedCount)} hint="pezzi totali" />
