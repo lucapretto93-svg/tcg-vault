@@ -117,13 +117,74 @@
 
   html {
     color-scheme: dark;
+    min-width: 320px;
+    background-color: var(--color-background);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
+    min-width: 320px;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
     font-feature-settings: "cv02", "cv03", "cv04";
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: inherit;
+    }
+  }
+}
+
+@layer components {
+  .app-viewport {
+    min-height: 100dvh;
+  }
+
+  .app-header {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .app-content {
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  .mobile-sheet {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+}
+
+@media (pointer: coarse) {
+  button:not([role="checkbox"]),
+  a {
+    min-height: 44px;
   }
 }
 
