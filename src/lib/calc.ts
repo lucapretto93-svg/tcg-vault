@@ -33,8 +33,13 @@ export function itemTitle(item: ItemRow): string {
     if (!c) return "Carta senza nome";
     return [c.pokemon_name, c.card_name].filter(Boolean).join(" — ") || "Carta senza nome";
   }
-  return item.sealed_products[0]?.name || "Prodotto sealed";
+  const s = item.sealed_products[0];
+  const name = s?.name?.trim();
+  if (name) return name;
+  const fallback = [s?.set_name, s?.product_type].filter(Boolean).join(" — ");
+  return fallback || "Prodotto sealed";
 }
+
 
 export function itemSubtitle(item: ItemRow): string {
   if (item.item_type === "CARD") {
