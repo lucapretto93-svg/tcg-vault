@@ -31,7 +31,7 @@ function ebayCondition(condition?: string | null): string {
 }
 
 function buildDraft(item: ItemRow) {
-  const card = item.cards[0];
+  const card = item.cards[0] ?? ({} as NonNullable<(typeof item.cards)[number]>);
   const condition = latestCondition(item);
   const rawMarket = currentValue(item);
   const cost = totalCost(item);
