@@ -255,6 +255,38 @@ export async function updateItemStatus(itemId: string, status: string) {
 }
 
 export async function deleteItem(itemId: string) {
-  const { error } = await supabase.from("items").delete().eq("id", itemId);
+  // Raccogli acquisti/vendite collegati prima della cancellazione (i figli vanno in cascade)
+  const [{ data: pis }, { data: sis }] = await Promise.all([
+    supabase.from("purchase_items").select("purchase_id").eq("item_id", itemId),
+    supabase.from("sale_items").select("sale_id").eq("item_id", itemId),
+  ]);
+  const purchaseIds = [...new Set((pis ?? []).map((r) => r.purchase_id))];
+  const saleIds = [...new Set((sis ?? []).map((r) => r.sale_id))];
+
+  const { data: deleted, error } = await supabase
+    .from("items")
+    .delete()
+    .eq("id", itemId)
+    .select("id");
   if (error) throw new Error(error.message);
+  if (!deleted || deleted.length === 0) {
+    throw new Error("Eliminazione rifiutata dal database: elemento non trovato o non autorizzato.");
+  }
+
+  // Rimuovi acquisti/vendite rimasti senza alcun item collegato
+  for (const pid of purchaseIds) {
+    const { count } = await supabase
+      .from("purchase_items")
+      .select("id", { count: "exact", head: true })
+      .eq("purchase_id", pid);
+    if (!count) await supabase.from("purchases").delete().eq("id", pid);
+  }
+  for (const sid of saleIds) {
+    const { count } = await supabase
+      .from("sale_items")
+      .select("id", { count: "exact", head: true })
+      .eq("sale_id", sid);
+    if (!count) await supabase.from("sales").delete().eq("id", sid);
+  }
 }
+
