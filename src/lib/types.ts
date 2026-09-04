@@ -378,8 +378,13 @@ export function getItemName(item: ItemRow): string {
     const card = getCard(item);
     return card?.card_name || card?.pokemon_name || "Carta senza nome";
   }
-  return getSealedProduct(item)?.name || "Prodotto sealed senza nome";
+  const sealed = getSealedProduct(item);
+  const name = sealed?.name?.trim();
+  if (name) return name;
+  const fallback = [sealed?.set_name, sealed?.product_type].filter(Boolean).join(" — ");
+  return fallback || "Prodotto sealed senza nome";
 }
+
 
 export function calculateUnrealizedProfit(item: ItemRow): number | null {
   const cost = getTotalPurchaseCost(item);

@@ -14,14 +14,41 @@ const ITEM_SELECT = `
   sale_items(id, sale_id, item_id, allocated_revenue, sales(*))
 `;
 
+/** PostgREST restituisce le relazioni 1:1 (cards, sealed_products) come oggetto, non array. */
+function toArray<T>(value: T | T[] | null | undefined): T[] {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
+}
+
+function normalizeItem(row: Record<string, unknown>): ItemRow {
+  return {
+    ...row,
+    cards: toArray(row["cards"] as never),
+    sealed_products: toArray(row["sealed_products"] as never),
+    card_images: toArray(row["card_images"] as never),
+    condition_assessments: toArray(row["condition_assessments"] as never),
+    grading_assessments: toArray(row["grading_assessments"] as never),
+    market_prices: toArray(row["market_prices"] as never),
+    purchase_items: toArray(row["purchase_items"] as never).map((pi: Record<string, unknown>) => ({
+      ...pi,
+      purchases: Array.isArray(pi["purchases"]) ? pi["purchases"][0] : pi["purchases"],
+    })),
+    sale_items: toArray(row["sale_items"] as never).map((si: Record<string, unknown>) => ({
+      ...si,
+      sales: Array.isArray(si["sales"]) ? si["sales"][0] : si["sales"],
+    })),
+  } as unknown as ItemRow;
+}
+
 export async function fetchItems(): Promise<ItemRow[]> {
   const { data, error } = await supabase
     .from("items")
     .select(ITEM_SELECT)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return (data ?? []) as unknown as ItemRow[];
+  return ((data ?? []) as unknown as Record<string, unknown>[]).map(normalizeItem);
 }
+
 
 export const itemsQuery = () =>
   queryOptions({ queryKey: ["items"], queryFn: fetchItems, staleTime: 10_000 });
