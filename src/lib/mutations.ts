@@ -276,6 +276,10 @@ export async function deleteItem(itemId: string) {
     throw new Error("Eliminazione rifiutata dal database: elemento non trovato o non autorizzato.");
   }
 
+  if (paths.length) await supabase.storage.from("item-images").remove(paths);
+
+
+
   // Rimuovi acquisti/vendite rimasti senza alcun item collegato
   for (const pid of purchaseIds) {
     const { count } = await supabase
