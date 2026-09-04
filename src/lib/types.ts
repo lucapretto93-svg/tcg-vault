@@ -373,6 +373,23 @@ export function getExtraImages(item: ItemRow): ImageRow[] {
     .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 }
 
+/**
+ * Immagine di copertina: la foto "extra" (scatto sul cavalletto) è la principale.
+ * Fallback additivo e retrocompatibile: front, back, poi la prima immagine disponibile.
+ */
+export function getCoverImage(item: ItemRow): ImageRow | null {
+  return (
+    getExtraImages(item)[0] ??
+    getFrontImage(item) ??
+    getBackImage(item) ??
+    [...item.card_images].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    )[0] ??
+    null
+  );
+}
+
+
 export function getItemName(item: ItemRow): string {
   if (item.item_type === "CARD") {
     const card = getCard(item);
