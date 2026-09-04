@@ -256,12 +256,15 @@ export async function updateItemStatus(itemId: string, status: string) {
 
 export async function deleteItem(itemId: string) {
   // Raccogli acquisti/vendite collegati prima della cancellazione (i figli vanno in cascade)
-  const [{ data: pis }, { data: sis }] = await Promise.all([
+  const [{ data: pis }, { data: sis }, { data: imgs }] = await Promise.all([
     supabase.from("purchase_items").select("purchase_id").eq("item_id", itemId),
     supabase.from("sale_items").select("sale_id").eq("item_id", itemId),
+    supabase.from("card_images").select("storage_path").eq("item_id", itemId),
   ]);
   const purchaseIds = [...new Set((pis ?? []).map((r) => r.purchase_id))];
   const saleIds = [...new Set((sis ?? []).map((r) => r.sale_id))];
+  const paths = (imgs ?? []).map((r) => r.storage_path).filter((p): p is string => !!p);
+
 
   const { data: deleted, error } = await supabase
     .from("items")
