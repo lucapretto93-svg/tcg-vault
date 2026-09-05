@@ -18,10 +18,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ItemPhoto } from "@/components/ItemPhoto";
 import { itemsQuery } from "@/lib/queries";
 import { deleteItem } from "@/lib/mutations";
-import { currentValue, eur, itemSubtitle, itemTitle, pct, roi, totalCost } from "@/lib/calc";
-import type { ItemRow } from "@/lib/types";
+import {
+  currentValue,
+  eur,
+  itemSubtitle,
+  itemTitle,
+  latestCondition,
+  latestGrading,
+  pct,
+  roi,
+  totalCost,
+} from "@/lib/calc";
+import { getCoverImage, type ItemRow } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/carte")({
   head: () => ({
@@ -144,8 +156,17 @@ function CartePage() {
               {rows.map((i) => (
                 <TableRow key={i.id}>
                   <TableCell>
-                    <p className="font-medium">{itemTitle(i)}</p>
-                    <p className="text-xs text-muted-foreground">{itemSubtitle(i)}</p>
+                    <div className="flex items-center gap-3">
+                      <ItemPhoto
+                        image={getCoverImage(i)}
+                        alt={itemTitle(i)}
+                        className="h-14 w-10 shrink-0 bg-muted/30 object-contain"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium">{itemTitle(i)}</p>
+                        <p className="text-xs text-muted-foreground">{itemSubtitle(i)}</p>
+                      </div>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary">{i.status}</Badge>
@@ -193,7 +214,7 @@ function CartePage() {
                   <ItemPhoto
                     image={getCoverImage(i)}
                     alt={itemTitle(i)}
-                    className="h-32 w-24 shrink-0 bg-muted/30 object-contain sm:h-36 sm:w-26"
+                    className="h-32 w-24 shrink-0 bg-muted/30 object-contain sm:h-36 sm:w-28"
                   />
                   <div className="flex min-w-0 flex-1 flex-col">
                     <p className="truncate text-sm font-semibold">{itemTitle(i)}</p>
