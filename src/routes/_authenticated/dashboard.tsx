@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { itemsQuery } from "@/lib/queries";
 import { buildPortfolio, currentValue, eur, itemSubtitle, itemTitle, pct, roi } from "@/lib/calc";
 import { exportCsv, exportJson } from "@/lib/exporters";
+import { ItemPhoto } from "@/components/ItemPhoto";
+import { getCoverImage } from "@/lib/types";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
