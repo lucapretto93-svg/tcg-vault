@@ -141,15 +141,24 @@ function DashboardPage() {
               <p className="text-sm text-muted-foreground">Nessun dato disponibile.</p>
             ) : (
               p.topByRoi.map((i) => (
-                <div key={i.id} className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
+                <div key={i.id} className="flex items-center gap-3">
+                  <ItemPhoto
+                    image={getCoverImage(i)}
+                    alt={itemTitle(i)}
+                    className="h-16 w-12 shrink-0 bg-muted/30 object-contain"
+                  />
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{itemTitle(i)}</p>
                     <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>
                   </div>
-                  <Badge variant={(roi(i) ?? 0) >= 0 ? "default" : "destructive"}>
+                  <Badge
+                    className="shrink-0"
+                    variant={(roi(i) ?? 0) >= 0 ? "default" : "destructive"}
+                  >
                     {pct(roi(i))}
                   </Badge>
                 </div>
+
               ))
             )}
           </CardContent>
