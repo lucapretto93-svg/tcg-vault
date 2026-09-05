@@ -9,20 +9,24 @@ export function useResolvedImage(image?: ImageRow | null) {
 
   useEffect(() => {
     let active = true;
-    if (!image) {
-      setUrl(null);
-      return;
-    }
+    setUrl(null);
+
+    if (!image) return () => { active = false; };
+
     if (image.storage_path) {
       supabase.storage
         .from("item-images")
         .createSignedUrl(image.storage_path, 3600)
         .then(({ data }) => {
           if (active) setUrl(data?.signedUrl ?? image.url ?? null);
+        })
+        .catch(() => {
+          if (active) setUrl(image.url ?? null);
         });
     } else {
       setUrl(image.url ?? null);
     }
+
     return () => {
       active = false;
     };
@@ -40,7 +44,10 @@ export function ItemPhoto({
   alt: string;
   className?: string;
 }) {
-  const url = useResolvedImage(image);
+  const resolvedUrl = useResolvedImage(image);
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const url = resolvedUrl && resolvedUrl !== failedUrl ? resolvedUrl : null;
+
   if (!url) {
     return (
       <div
@@ -48,16 +55,20 @@ export function ItemPhoto({
           "flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 text-muted-foreground",
           className,
         )}
+        aria-label={`${alt}: immagine non disponibile`}
       >
-        <ImageIcon className="h-5 w-5" />
+        <ImageIcon className="h-5 w-5" aria-hidden="true" />
       </div>
     );
   }
+
   return (
     <img
       src={url}
       alt={alt}
       loading="lazy"
+      decoding="async"
+      onError={() => setFailedUrl(url)}
       className={cn("rounded-lg border border-border object-cover", className)}
     />
   );
