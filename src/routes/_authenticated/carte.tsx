@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ItemPhoto } from "@/components/ItemPhoto";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { itemsQuery } from "@/lib/queries";
 import { deleteItem } from "@/lib/mutations";
 import {
@@ -57,7 +58,9 @@ function CartePage() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("TUTTI");
   const [sort, setSort] = useState<SortKey>("recent");
-  const [view, setView] = useState<"table" | "cards">("table");
+  const isMobile = useIsMobile();
+  const [view, setView] = useState<"table" | "cards" | null>(null);
+  const effectiveView = view ?? (isMobile ? "cards" : "table");
 
   const del = useMutation({
     mutationFn: deleteItem,
@@ -131,15 +134,15 @@ function CartePage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setView(view === "table" ? "cards" : "table")}
+          onClick={() => setView(effectiveView === "table" ? "cards" : "table")}
         >
-          {view === "table" ? "Vista card" : "Vista tabella"}
+          {effectiveView === "table" ? "Vista card" : "Vista tabella"}
         </Button>
       </div>
 
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">Nessuna carta trovata.</p>
-      ) : view === "table" ? (
+      ) : effectiveView === "table" ? (
         <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
