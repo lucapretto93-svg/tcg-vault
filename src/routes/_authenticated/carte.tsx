@@ -182,55 +182,104 @@ function CartePage() {
           </Table>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {rows.map((i) => (
-            <Card key={i.id}>
-              <CardContent className="space-y-2 pt-6">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">{itemTitle(i)}</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+          {rows.map((i) => {
+            const cond = latestCondition(i);
+            const grad = latestGrading(i);
+            const r = roi(i);
+            return (
+              <Card key={i.id} className="overflow-hidden">
+                <CardContent className="flex gap-3 p-3 sm:p-4">
+                  <ItemPhoto
+                    image={getCoverImage(i)}
+                    alt={itemTitle(i)}
+                    className="h-32 w-24 shrink-0 bg-muted/30 object-contain sm:h-36 sm:w-26"
+                  />
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <p className="truncate text-sm font-semibold">{itemTitle(i)}</p>
                     <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>
+
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <Badge variant="secondary">{i.status}</Badge>
+                      {cond?.overall_condition ? (
+                        <Badge variant="outline">{cond.overall_condition}</Badge>
+                      ) : null}
+                      {grad?.probable_grade != null ? (
+                        <Badge variant="outline">
+                          {grad.grading_company ?? "PSA"} {grad.probable_grade}
+                        </Badge>
+                      ) : null}
+                      {grad?.recommendation ? (
+                        <Badge
+                          variant={grad.recommendation === "GRADA" ? "default" : "outline"}
+                        >
+                          {grad.recommendation}
+                        </Badge>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                      <div className="min-w-0">
+                        <p className="text-muted-foreground">Costo</p>
+                        <p className="truncate font-medium">{eur(totalCost(i))}</p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-muted-foreground">Valore</p>
+                        <p className="truncate font-medium">{eur(currentValue(i))}</p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-muted-foreground">ROI</p>
+                        <p
+                          className={cn(
+                            "truncate font-semibold",
+                            (r ?? 0) >= 0 ? "text-emerald-400" : "text-destructive",
+                          )}
+                        >
+                          {pct(r)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto flex flex-wrap items-center justify-end gap-1 pt-3">
+                      <CardDetailDialog
+                        item={i}
+                        trigger={
+                          <Button variant="secondary" size="sm" className="h-9">
+                            <Eye className="mr-1 h-4 w-4" /> Dettaglio
+                          </Button>
+                        }
+                      />
+                      <CardFormDialog
+                        item={i}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9"
+                            aria-label="Modifica"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9"
+                        aria-label="Elimina"
+                        onClick={() => remove(i)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
-                  <Badge variant="secondary">{i.status}</Badge>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Costo</span>
-                  <span>{eur(totalCost(i))}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Valore</span>
-                  <span>{eur(currentValue(i))}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">ROI</span>
-                  <span>{pct(roi(i))}</span>
-                </div>
-                <div className="flex justify-end gap-1 pt-2">
-                  <CardDetailDialog
-                    item={i}
-                    trigger={
-                      <Button variant="ghost" size="sm">
-                        <Eye className="mr-1 h-4 w-4" /> Dettaglio
-                      </Button>
-                    }
-                  />
-                  <CardFormDialog
-                    item={i}
-                    trigger={
-                      <Button variant="ghost" size="icon">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    }
-                  />
-                  <Button variant="ghost" size="icon" onClick={() => remove(i)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
+
     </AppShell>
   );
 }
