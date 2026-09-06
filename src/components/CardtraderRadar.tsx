@@ -119,11 +119,40 @@ function DealCard({ deal, onStatus }: { deal: CardtraderDeal; onStatus: (s: Card
 export function CardtraderRadar() {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
+  const [sort, setSort] = useState<DealSort>("score");
   const { data: settings } = useQuery(cardtraderSettingsQuery());
   const { data: deals = [] } = useQuery(cardtraderDealsQuery());
+  const { data: items = [] } = useQuery(itemsQuery());
   const scan = useServerFn(runCardtraderScan);
 
-  const visible = useMemo(() => sortDeals(activeDeals(deals)), [deals]);
+  // Quante carte possiedi già in ciascun set: più ne hai, più il set è vicino a chiudersi.
+  const ownedBySet = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    for (const item of items) {
+      const card = item.cards[0];
+      if (!card) continue;
+      const keys = [norm(card.set_name), norm(card.set_code)].filter(Boolean);
+      for (const key of keys) {
+        const nums = map.get(key) ?? new Set<string>();
+        nums.add(norm(card.card_number) || card.id);
+        map.set(key, nums);
+      }
+    }
+    return new Map([...map].map(([k, v]) => [k, v.size]));
+  }, [items]);
+
+  const setUrgency = (deal: CardtraderDeal): number =>
+    Math.max(ownedBySet.get(norm(deal.set_name)) ?? 0, ownedBySet.get(norm(deal.expansion_code)) ?? 0);
+
+  const visible = useMemo(() => {
+    const sorted = sortDeals(activeDeals(deals));
+    if (sort === "score") return sorted;
+    return [...sorted].sort((a, b) => {
+      const diff = setUrgency(b) - setUrgency(a);
+      if (diff !== 0) return diff;
+      return b.deal_score - a.deal_score;
+    });
+  }, [deals, sort, ownedBySet]);
   const shown = expanded ? visible : visible.slice(0, 6);
   const newCount = newDealsCount(deals);
 
