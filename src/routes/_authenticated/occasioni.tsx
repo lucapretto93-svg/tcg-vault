@@ -130,11 +130,40 @@ function DealsPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const scan = useServerFn(runCardtraderScan);
+  const runScan = useMutation({
+    mutationFn: () => scan({}),
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: ["cardtrader_deals"] });
+      await queryClient.invalidateQueries({ queryKey: ["cardtrader_settings"] });
+      if (result.status === "not_configured") toast.warning("Configura CardTrader nelle Impostazioni.");
+      else if (result.status === "disabled") toast.warning("Radar disattivato nelle Impostazioni.");
+      else if (result.status === "error") toast.error(result.message);
+      else toast.success(result.message);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   return (
     <AppShell
       title="Occasioni"
       subtitle="Tutte le offerte trovate dal radar CardTrader"
-      actions={<Badge variant="secondary">{rows.length}</Badge>}
+      actions={
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{rows.length}</Badge>
+          <Button
+            size="sm"
+            variant="outline"
+            className="min-h-11"
+            disabled={runScan.isPending}
+            onClick={() => runScan.mutate()}
+            aria-label="Aggiorna offerte"
+          >
+            <RefreshCw className={`h-4 w-4 sm:mr-1 ${runScan.isPending ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">Aggiorna</span>
+          </Button>
+        </div>
+      }
     >
       <div className="sticky top-[57px] z-10 -mx-4 mb-4 space-y-2 border-b border-border bg-background/95 px-4 py-3 backdrop-blur md:top-[65px] md:-mx-6 md:px-6">
         <Input
