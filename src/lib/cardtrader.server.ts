@@ -179,7 +179,9 @@ export async function sendTelegram(message: string): Promise<boolean> {
 }
 
 /** Crea/aggiorna/rimuove inserzioni sull'account venditore CardTrader. */
-export async function ctCreateProduct(body: Record<string, unknown>): Promise<{ id?: number }> {
+export async function ctCreateProduct(
+  body: Record<string, unknown>,
+): Promise<{ id: number | undefined }> {
   const result = await ctFetch<{ id?: number; resource?: { id?: number } }>("/products", {
     method: "POST",
     body: JSON.stringify(body),
