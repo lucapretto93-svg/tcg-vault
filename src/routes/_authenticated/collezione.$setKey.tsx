@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
