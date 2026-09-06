@@ -28,3 +28,29 @@ export const savePushSubscription = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
   });
+
+/** Invia una notifica di prova ai dispositivi registrati dall'utente. */
+export const sendTestPush = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { sendPushToUser } = await import("./webpush.server");
+    const result = await sendPushToUser(context.userId, {
+      title: "TCG Vault",
+      body: "Notifiche attive: ti avviserò quando il Radar trova un affare.",
+      url: "/dashboard",
+      tag: "test",
+    });
+    return result;
+  });
+
+/** Invia un messaggio WhatsApp di prova (richiede provider configurato). */
+export const sendTestWhatsapp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { sendWhatsapp, isWhatsappConfigured } = await import("./whatsapp.server");
+    if (!isWhatsappConfigured()) return { ok: false as const, configured: false, error: null as string | null };
+    const result = await sendWhatsapp(
+      "TCG Vault: notifiche WhatsApp attive. Ti avviserò quando il Radar trova un affare.",
+    );
+    return { ok: result.ok, configured: true, error: result.error };
+  });
