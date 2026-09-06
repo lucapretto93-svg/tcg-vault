@@ -141,11 +141,26 @@ function SetDetailPage() {
                   className="rounded-lg border border-border bg-card p-2 text-left transition-colors hover:border-primary/60"
                 >
                   <div className="relative">
-                    <ItemPhoto
-                      image={getCoverImage(item)}
-                      alt={card?.card_name || card?.pokemon_name || "Carta"}
-                      className="aspect-[63/88] w-full"
-                    />
+                    {cover ? (
+                      <ItemPhoto
+                        image={cover}
+                        alt={card?.card_name || card?.pokemon_name || "Carta"}
+                        className="aspect-[63/88] w-full"
+                      />
+                    ) : stockUrl ? (
+                      <img
+                        src={stockUrl}
+                        alt={card?.card_name || card?.pokemon_name || "Carta"}
+                        loading="lazy"
+                        className="aspect-[63/88] w-full rounded-md object-cover"
+                      />
+                    ) : (
+                      <ItemPhoto
+                        image={null}
+                        alt={card?.card_name || card?.pokemon_name || "Carta"}
+                        className="aspect-[63/88] w-full"
+                      />
+                    )}
                     {slot.items.length > 1 ? (
                       <Badge className="absolute right-1 top-1">x{slot.items.length}</Badge>
                     ) : null}
