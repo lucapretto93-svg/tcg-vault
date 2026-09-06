@@ -121,10 +121,15 @@ export function AppShell({
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="mobile-sheet w-72 bg-sidebar p-0">
+            <SheetContent
+              side="left"
+              className="mobile-sheet pokedex-sidebar flex w-72 flex-col bg-sidebar p-0"
+            >
               <SheetTitle className="sr-only">Navigazione</SheetTitle>
               <Brand />
-              <NavList onNavigate={() => setOpen(false)} />
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+                <NavList onNavigate={() => setOpen(false)} />
+              </div>
               <div className="border-t border-sidebar-border p-3">
                 <Button variant="ghost" className="w-full justify-start gap-3" onClick={signOut}>
                   <LogOut className="h-4 w-4" /> Esci
