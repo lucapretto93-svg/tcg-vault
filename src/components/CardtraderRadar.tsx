@@ -36,7 +36,15 @@ function scoreTone(score: number): string {
   return "bg-muted text-muted-foreground";
 }
 
-function DealCard({ deal, onStatus }: { deal: CardtraderDeal; onStatus: (s: CardtraderDeal["status"]) => void }) {
+function DealCard({
+  deal,
+  onStatus,
+  ownedInSet,
+}: {
+  deal: CardtraderDeal;
+  onStatus: (s: CardtraderDeal["status"]) => void;
+  ownedInSet?: number;
+}) {
   return (
     <article className="flex flex-col gap-3 rounded-xl border border-border bg-card/60 p-3">
       <div className="flex items-start gap-3">
@@ -61,6 +69,7 @@ function DealCard({ deal, onStatus }: { deal: CardtraderDeal; onStatus: (s: Card
             {deal.zero_eligible ? <Badge variant="outline">CT Zero</Badge> : null}
             {deal.status === "NEW" ? <Badge>Nuova</Badge> : null}
             {deal.status === "SAVED" ? <Badge variant="secondary">Watchlist</Badge> : null}
+            {ownedInSet ? <Badge variant="secondary">Hai già {ownedInSet} del set</Badge> : null}
           </div>
         </div>
         <span className={`rounded-md border px-2 py-1 text-xs font-bold ${scoreTone(deal.deal_score)}`}>
@@ -234,6 +243,7 @@ export function CardtraderRadar() {
               <DealCard
                 key={deal.id}
                 deal={deal}
+                ownedInSet={setUrgency(deal)}
                 onStatus={(next) => status.mutate({ id: deal.id, status: next })}
               />
             ))}
