@@ -14,6 +14,8 @@ import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
 import { PortfolioChart } from "@/components/PortfolioChart";
 import { CardtraderRadar } from "@/components/CardtraderRadar";
+import { MoveList } from "@/components/MoveList";
+import { buildMoves } from "@/lib/actions";
 import {
   buildAlerts,
   incompleteItems,
@@ -76,6 +78,7 @@ function DashboardPage() {
   const seg = useMemo(() => segmentValues(items), [items]);
   const mv = useMemo(() => movers(items), [items]);
   const alerts = useMemo(() => buildAlerts(items), [items]);
+  const moves = useMemo(() => buildMoves(items), [items]);
   const incomplete = useMemo(() => incompleteItems(items), [items]);
   const stale = useMemo(
     () =>
