@@ -51,6 +51,8 @@ import {
 } from "@/lib/types";
 
 const money = (n: number) => (n > 0 ? eur(n) : "Da completare");
+const purchaseCost = (item: ItemRow) =>
+  item.purchase_items.length > 0 ? eur(totalCost(item)) : "Da completare";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/carte")({
@@ -221,7 +223,7 @@ function CartePage() {
                       </Badge>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">{money(totalCost(i))}</TableCell>
+                  <TableCell className="text-right">{purchaseCost(i)}</TableCell>
                   <TableCell className="text-right">{money(currentValue(i))}</TableCell>
                   <TableCell className="text-right">
                     {totalCost(i) > 0 && currentValue(i) > 0
@@ -324,7 +326,7 @@ function CartePage() {
                     <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                       <div className="min-w-0">
                         <p className="text-muted-foreground">Costo</p>
-                        <p className="truncate font-medium">{money(totalCost(i))}</p>
+                        <p className="truncate font-medium">{purchaseCost(i)}</p>
                       </div>
                       <div className="min-w-0">
                         <p className="text-muted-foreground">Valore</p>
