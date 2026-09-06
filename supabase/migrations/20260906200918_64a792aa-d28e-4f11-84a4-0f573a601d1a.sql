@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.assign_item_owner() FROM anon, authenticated, PUBLIC;
