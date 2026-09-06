@@ -20,6 +20,10 @@ import { itemsQuery } from "@/lib/queries";
 import { addPrice } from "@/lib/mutations";
 import { dateIt, eur, itemTitle, priceHistory } from "@/lib/calc";
 import { PRICE_TYPES, type PriceType } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { formatObservedAt, latestValuePrice, priceFreshness } from "@/lib/analytics";
+import { isPriceSourceConfigured, priceSourceQuery } from "@/lib/priceSource";
 
 export const Route = createFileRoute("/_authenticated/prezzi")({
   head: () => ({
@@ -42,6 +46,7 @@ function PrezziPage() {
   const [type, setType] = useState<PriceType>("RAW");
   const [value, setValue] = useState("");
   const [source, setSource] = useState("Manuale");
+  const { data: priceSource = null } = useQuery(priceSourceQuery());
 
   const selected = useMemo(() => items.find((i) => i.id === itemId) ?? null, [items, itemId]);
   const history = selected ? priceHistory(selected) : [];
@@ -65,6 +70,25 @@ function PrezziPage() {
         </p>
       ) : (
         <div className="space-y-4">
+          <Card>
+            <CardContent className="flex flex-wrap items-center gap-3 py-4 text-sm">
+              {isPriceSourceConfigured(priceSource) ? (
+                <Badge>Fonte prezzi: {priceSource!.provider}</Badge>
+              ) : (
+                <Badge variant="destructive">Fonte prezzi non configurata</Badge>
+              )}
+              <span className="text-xs text-muted-foreground">
+                L'aggiornamento automatico giornaliero è pronto: aggiunge sempre nuove rilevazioni
+                senza sovrascrivere lo storico e non stima mai valori.
+              </span>
+              {selected ? (
+                <span className="text-xs text-muted-foreground">
+                  {itemTitle(selected)}: {priceFreshness(selected).label} ·{" "}
+                  {formatObservedAt(latestValuePrice(selected))}
+                </span>
+              ) : null}
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Aggiungi valore</CardTitle>

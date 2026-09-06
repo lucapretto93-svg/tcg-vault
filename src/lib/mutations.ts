@@ -41,11 +41,17 @@ export async function createItemWithPurchase(input: {
   /** Tipo di prezzo per il valore inserito (RAW per le carte raw, PSAn per gli slab). */
   valueType?: PriceType | undefined;
   notes?: string | undefined;
+  bucket?: "COLLECTION" | "STOCK" | undefined;
 }) {
   const userId = await currentUserId();
   const { data: item, error } = await supabase
     .from("items")
-    .insert({ user_id: userId, item_type: input.item_type, notes: input.notes ?? null })
+    .insert({
+      user_id: userId,
+      item_type: input.item_type,
+      notes: input.notes ?? null,
+      bucket: input.bucket ?? "COLLECTION",
+    })
     .select("id")
     .single();
   if (error || !item) throw new Error(error?.message ?? "Errore creazione item");
@@ -344,3 +350,9 @@ export async function deleteItem(itemId: string) {
   }
 }
 
+
+/** Sposta un oggetto tra Collezione personale e Stock da vendere. */
+export async function setItemBucket(itemId: string, bucket: "COLLECTION" | "STOCK") {
+  const { error } = await supabase.from("items").update({ bucket }).eq("id", itemId);
+  if (error) throw new Error(error.message);
+}

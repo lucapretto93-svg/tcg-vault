@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createItemWithPurchase, updateItemWithRawValue } from "@/lib/mutations";
+import { createItemWithPurchase, updateItemWithRawValue, uploadImage } from "@/lib/mutations";
 import {
   getCurrentRawValue,
   getPurchaseCost,
@@ -149,6 +149,11 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
     });
   };
 
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [bucket, setBucket] = useState<"COLLECTION" | "STOCK">(
+    (item?.bucket as "COLLECTION" | "STOCK") ?? "COLLECTION",
+  );
+
   const mutation = useMutation({
     mutationFn: async () => {
       const currentYear = new Date().getFullYear();
@@ -197,9 +202,10 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
         await updateItemWithRawValue(item.id, card, form.notes, rawValue, valueType);
         return;
       }
-      await createItemWithPurchase({
+      const newId = await createItemWithPurchase({
         item_type: "CARD",
         card,
+        bucket,
         notes: form.notes,
         rawValue,
         valueType,
@@ -216,6 +222,9 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
             }
           : undefined,
       });
+      if (coverFile && newId) {
+        await uploadImage(newId, coverFile, "COVER");
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
@@ -224,7 +233,10 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
       }
       toast.success(item ? "Carta aggiornata" : "Carta aggiunta");
       setOpen(false);
-      if (!item) setForm(emptyForm());
+      if (!item) {
+        setForm(emptyForm());
+        setCoverFile(null);
+      }
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -388,6 +400,44 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
         <div className="mt-2 space-y-1.5">
           <Label>Note</Label>
           <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Destinazione</Label>
+          <select
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+            value={bucket}
+            onChange={(e) => setBucket(e.target.value as "COLLECTION" | "STOCK")}
+            disabled={!!item}
+          >
+            <option value="COLLECTION">Collezione personale</option>
+            <option value="STOCK">Stock da vendere</option>
+          </select>
+          {item ? (
+            <p className="text-xs text-muted-foreground">
+              Sposta tra collezione e stock dall'elenco carte.
+            </p>
+          ) : null}
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Foto copertina</Label>
+          {item ? (
+            <p className="text-xs text-muted-foreground">
+              Gestisci le foto dal dettaglio della carta.
+            </p>
+          ) : (
+            <>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Opzionale: viene salvata nell'archivio privato come copertina.
+              </p>
+            </>
+          )}
         </div>
 
         <DialogFooter>

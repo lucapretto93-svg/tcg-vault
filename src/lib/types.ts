@@ -236,11 +236,19 @@ export interface SaleItemRow {
   sales: SaleRow | null;
 }
 
+export type Bucket = "COLLECTION" | "STOCK";
+export const BUCKETS: Bucket[] = ["COLLECTION", "STOCK"];
+export const BUCKET_LABELS: Record<Bucket, string> = {
+  COLLECTION: "Collezione personale",
+  STOCK: "Stock da vendere",
+};
+
 export interface ItemRow {
   id: string;
   user_id: string | null;
   item_type: ItemType;
   status: ItemStatus;
+  bucket: Bucket;
   is_demo: boolean;
   notes: string | null;
   created_at: string;

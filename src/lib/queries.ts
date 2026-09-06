@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { ItemRow, PurchaseRow, SaleRow } from "./types";
 
 const ITEM_SELECT = `
-  id, user_id, item_type, status, is_demo, notes, created_at, updated_at,
+  id, user_id, item_type, status, bucket, is_demo, notes, created_at, updated_at,
   cards(*),
   sealed_products(*),
   card_images(*),

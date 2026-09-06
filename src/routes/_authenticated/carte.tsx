@@ -21,7 +21,14 @@ import {
 import { ItemPhoto } from "@/components/ItemPhoto";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { itemsQuery } from "@/lib/queries";
-import { deleteItem } from "@/lib/mutations";
+import { deleteItem, setItemBucket } from "@/lib/mutations";
+import {
+  formatObservedAt,
+  latestValuePrice,
+  priceChange,
+  priceFreshness,
+} from "@/lib/analytics";
+import { BUCKET_LABELS } from "@/lib/types";
 import {
   currentValue,
   eur,
@@ -68,6 +75,7 @@ function CartePage() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("TUTTI");
   const [sort, setSort] = useState<SortKey>("recent");
+  const [bucket, setBucket] = useState<string>("TUTTI");
   const isMobile = useIsMobile();
   const [view, setView] = useState<"table" | "cards" | null>(null);
   const effectiveView = view ?? (isMobile ? "cards" : "table");
@@ -84,6 +92,7 @@ function CartePage() {
   const rows = useMemo(() => {
     let list = items.filter((i) => i.item_type === "CARD");
     if (status !== "TUTTI") list = list.filter((i) => i.status === status);
+    if (bucket !== "TUTTI") list = list.filter((i) => i.bucket === bucket);
     const term = q.trim().toLowerCase();
     if (term) {
       list = list.filter((i) => `${itemTitle(i)} ${itemSubtitle(i)}`.toLowerCase().includes(term));
@@ -93,7 +102,17 @@ function CartePage() {
     if (sort === "roi") sorted.sort((a, b) => (roi(b) ?? -Infinity) - (roi(a) ?? -Infinity));
     if (sort === "name") sorted.sort((a, b) => itemTitle(a).localeCompare(itemTitle(b)));
     return sorted;
-  }, [items, q, status, sort]);
+  }, [items, q, status, sort, bucket]);
+
+  const move = useMutation({
+    mutationFn: (item: ItemRow) =>
+      setItemBucket(item.id, item.bucket === "STOCK" ? "COLLECTION" : "STOCK"),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Oggetto spostato");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const remove = (item: ItemRow) => {
     if (confirm(`Eliminare "${itemTitle(item)}"? L'operazione è definitiva.`)) del.mutate(item.id);
@@ -130,6 +149,15 @@ function CartePage() {
               {s}
             </option>
           ))}
+        </select>
+        <select
+          className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          value={bucket}
+          onChange={(e) => setBucket(e.target.value)}
+        >
+          <option value="TUTTI">Collezione + Stock</option>
+          <option value="COLLECTION">Solo collezione</option>
+          <option value="STOCK">Solo stock</option>
         </select>
         <select
           className="h-9 rounded-md border border-input bg-background px-3 text-sm"
@@ -256,6 +284,16 @@ function CartePage() {
 
                     <div className="mt-2 flex flex-wrap gap-1">
                       <Badge variant="secondary">{i.status}</Badge>
+                      <Badge variant="outline">
+                        {i.bucket === "STOCK" ? "STOCK" : "COLLEZIONE"}
+                      </Badge>
+                      <Badge
+                        variant={
+                          priceFreshness(i).status === "FRESH" ? "outline" : "destructive"
+                        }
+                      >
+                        {priceFreshness(i).label}
+                      </Badge>
                       <Badge variant={isGradedCard(i) ? "default" : "outline"}>
                         {isGradedCard(i)
                           ? `${getCardGradingCompany(i) ?? "GRADED"} ${getCardGrade(i) ?? ""}`.trim()
@@ -290,7 +328,25 @@ function CartePage() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-muted-foreground">Valore</p>
-                        <p className="truncate font-medium">{money(currentValue(i))}</p>
+                        <p className="truncate font-medium">
+                          {latestValuePrice(i) ? money(currentValue(i)) : "Da completare"}
+                        </p>
+                        {(() => {
+                          const ch = priceChange(i);
+                          if (!ch) return null;
+                          return (
+                            <p
+                              className={cn(
+                                "truncate text-[11px]",
+                                ch.abs >= 0 ? "text-emerald-400" : "text-destructive",
+                              )}
+                            >
+                              {ch.abs >= 0 ? "+" : ""}
+                              {money(ch.abs)}
+                              {ch.pct == null ? "" : ` (${pct(ch.pct)})`}
+                            </p>
+                          );
+                        })()}
                       </div>
                       <div className="min-w-0">
                         <p className="text-muted-foreground">ROI</p>
@@ -327,6 +383,19 @@ function CartePage() {
                           </Button>
                         }
                       />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => move.mutate(i)}
+                        title={`Sposta in ${
+                          i.bucket === "STOCK"
+                            ? BUCKET_LABELS.COLLECTION
+                            : BUCKET_LABELS.STOCK
+                        }`}
+                      >
+                        {i.bucket === "STOCK" ? "→ Collezione" : "→ Stock"}
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

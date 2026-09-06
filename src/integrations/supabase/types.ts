@@ -403,6 +403,7 @@ export type Database = {
       }
       items: {
         Row: {
+          bucket: string
           created_at: string
           id: string
           is_demo: boolean
@@ -413,6 +414,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          bucket?: string
           created_at?: string
           id?: string
           is_demo?: boolean
@@ -423,6 +425,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          bucket?: string
           created_at?: string
           id?: string
           is_demo?: boolean
@@ -474,6 +477,93 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      portfolio_snapshots: {
+        Row: {
+          cost_basis: number
+          created_at: string
+          currency: string
+          id: string
+          item_count: number
+          profit_loss: number
+          raw_value: number
+          sealed_value: number
+          slab_value: number
+          snapshot_date: string
+          total_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cost_basis?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          item_count?: number
+          profit_loss?: number
+          raw_value?: number
+          sealed_value?: number
+          slab_value?: number
+          snapshot_date?: string
+          total_value?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cost_basis?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          item_count?: number
+          profit_loss?: number
+          raw_value?: number
+          sealed_value?: number
+          slab_value?: number
+          snapshot_date?: string
+          total_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      price_sources: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          last_run_at: string | null
+          last_run_message: string | null
+          last_run_status: string | null
+          notes: string | null
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          last_run_message?: string | null
+          last_run_status?: string | null
+          notes?: string | null
+          provider?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          last_run_message?: string | null
+          last_run_status?: string | null
+          notes?: string | null
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       purchase_items: {
         Row: {
