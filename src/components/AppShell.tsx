@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useVaultRealtime } from "@/hooks/use-vault-realtime";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { StatusLights, VaultLogo } from "@/components/VaultLogo";
@@ -80,6 +81,7 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  useVaultRealtime();
 
   const signOut = async () => {
     await supabase.auth.signOut();
