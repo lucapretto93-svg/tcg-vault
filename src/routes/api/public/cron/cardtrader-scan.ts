@@ -12,14 +12,27 @@ function json(body: unknown, status = 200) {
 }
 
 async function run(request: Request) {
-  const secret = process.env["LOVABLE_CRON_SECRET"];
   const provided =
     request.headers.get("x-cron-secret") ??
     request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
     "";
-  if (!secret || provided !== secret) return json({ error: "Unauthorized" }, 401);
+  if (!provided) return json({ error: "Unauthorized" }, 401);
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  // Accetta il secret d'ambiente oppure il token interno usato dal job orario pg_cron.
+  const envSecret = process.env["LOVABLE_CRON_SECRET"];
+  let authorized = !!envSecret && provided === envSecret;
+  if (!authorized) {
+    const { data: tokenRow } = await supabaseAdmin
+      .from("cron_tokens")
+      .select("token")
+      .eq("name", "cardtrader-scan")
+      .maybeSingle();
+    authorized = !!tokenRow && provided === tokenRow.token;
+  }
+  if (!authorized) return json({ error: "Unauthorized" }, 401);
+
   const { scanCardtraderForUser } = await import("@/lib/cardtrader-scan.server");
 
   const { data: settings, error } = await supabaseAdmin
