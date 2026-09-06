@@ -18,6 +18,17 @@ import {
 } from "@/lib/cardtrader";
 import { runCardtraderScan } from "@/lib/cardtrader.functions";
 import { eur } from "@/lib/calc";
+import { itemsQuery } from "@/lib/queries";
+
+function norm(value: string | null | undefined): string {
+  return (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+type DealSort = "score" | "set";
 
 function scoreTone(score: number): string {
   if (score >= 90) return "bg-amber-500/15 text-amber-400 border-amber-500/40";
