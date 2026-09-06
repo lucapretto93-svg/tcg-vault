@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { deleteImage, uploadImage } from "@/lib/mutations";
 import { currentValue, eur, expectedGradedValue, expectedProfit, expectedUplift, gradingCost, itemSubtitle, itemTitle, latestCondition, latestGrading, latestPrice, pct, roi, totalCost } from "@/lib/calc";
-import { getBackImage, getCoverImage, getExtraImages, getFrontImage, PRICE_TYPES, type ImageRow, type ItemRow } from "@/lib/types";
+import { getBackImage, getExtraImages, getFrontImage, PRICE_TYPES, type ImageRow, type ItemRow } from "@/lib/types";
 
 type ImageType = "COVER" | "FRONT" | "BACK" | "EXTRA";
 function Field({ label, value }: { label: string; value: ReactNode }) { return <div><p className="text-xs text-muted-foreground">{label}</p><div className="mt-0.5 text-sm font-medium">{value || "—"}</div></div>; }
@@ -24,9 +24,9 @@ export function CardDetailDialog({ item, trigger }: { item: ItemRow; trigger: Re
   const card = item.cards[0];
   const condition = latestCondition(item);
   const grading = latestGrading(item);
-  const cover = getCoverImage(item); const front = getFrontImage(item); const back = getBackImage(item); const extras = getExtraImages(item);
+  const cover = item.card_images.find((i) => i.image_type === "COVER") ?? null; const front = getFrontImage(item); const back = getBackImage(item); const extras = getExtraImages(item);
   const removeImage = useMutation({ mutationFn: (image: ImageRow) => deleteImage(image), onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["items"] }); toast.success("Foto eliminata"); }, onError: (error: Error) => toast.error(error.message) });
-  const upload = useMutation({ mutationFn: ({ file, type }: { file: File; type: ImageType }) => uploadImage(item.id, file, type), onMutate: ({ type }) => setUploadType(type), onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["items"] }); toast.success("Foto caricata"); }, onError: (error: Error) => toast.error(error.message), onSettled: () => setUploadType(null) });
+  const upload = useMutation({ mutationFn: async ({ file, type }: { file: File; type: ImageType }) => { const previous = type === "EXTRA" ? null : item.card_images.find((i) => i.image_type === type) ?? null; await uploadImage(item.id, file, type); if (previous) await deleteImage(previous); }, onMutate: ({ type }) => setUploadType(type), onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["items"] }); toast.success("Foto caricata"); }, onError: (error: Error) => toast.error(error.message), onSettled: () => setUploadType(null) });
   const onFile = (type: ImageType) => (event: ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; if (!file.type.startsWith("image/")) { toast.error("Seleziona un file immagine"); return; } if (file.size > 12 * 1024 * 1024) { toast.error("La foto non può superare 12 MB"); return; } upload.mutate({ file, type }); };
   if (!card) return null;
   return <Dialog><DialogTrigger asChild>{trigger}</DialogTrigger><DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>{itemTitle(item)}</DialogTitle><DialogDescription>{itemSubtitle(item)}</DialogDescription></DialogHeader>
