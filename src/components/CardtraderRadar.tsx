@@ -190,7 +190,23 @@ export function CardtraderRadar() {
               : "Nessuna scansione ancora eseguita."}
           </CardDescription>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-md border border-border p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setSort("score")}
+              className={`rounded px-2 py-1 ${sort === "score" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              Miglior affare
+            </button>
+            <button
+              type="button"
+              onClick={() => setSort("set")}
+              className={`rounded px-2 py-1 ${sort === "set" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              Chiudi i set
+            </button>
+          </div>
           <Button size="sm" variant="outline" disabled={runScan.isPending} onClick={() => runScan.mutate()}>
             <RefreshCw className={`mr-1 h-4 w-4 ${runScan.isPending ? "animate-spin" : ""}`} /> Scansiona
           </Button>
