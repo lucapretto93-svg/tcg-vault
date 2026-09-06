@@ -136,6 +136,13 @@ export function median(values: number[]): number | null {
   return high ?? null;
 }
 
+/** Media aritmetica dei prezzi comparabili (stessa carta, lingua, variante e condizione). */
+export function mean(values: number[]): number | null {
+  if (!values.length) return null;
+  const total = values.reduce((sum, value) => sum + value, 0);
+  return Math.round((total / values.length) * 100) / 100;
+}
+
 export function dealUrl(product: CtProduct): string {
   return `https://www.cardtrader.com/cards/${product.blueprint_id}`;
 }

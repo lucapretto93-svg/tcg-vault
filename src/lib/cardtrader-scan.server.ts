@@ -12,7 +12,7 @@ import {
   dealUrl,
   hasCardtraderToken,
   isZeroEligible,
-  median,
+  mean,
   productCondition,
   productCurrency,
   productFoil,
@@ -65,7 +65,7 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
     return { status: "disabled", message: "Radar CardTrader disattivato.", ...empty };
   }
 
-  const threshold = Number(settings.discount_threshold ?? 35);
+  const threshold = Math.max(30, Number(settings.discount_threshold ?? 30));
   const maxPrice = Number(settings.max_price ?? 100);
   const allowedConditions = (settings.allowed_conditions ?? []).map((c: string) => norm(c));
   const allowedLanguages = (settings.languages ?? []).map((l: string) => norm(l));
@@ -131,7 +131,7 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
           if (allowedLanguages.length && !allowedLanguages.includes(norm(language))) continue;
 
           const others = group.filter((p) => p.id !== product.id).map(productPrice).filter((p) => p > 0);
-          const benchmark = median(others);
+          const benchmark = mean(others);
           if (!benchmark || benchmark <= 0) continue;
           const discount = ((benchmark - price) / benchmark) * 100;
           if (discount < threshold) continue;
@@ -160,7 +160,7 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
             price,
             currency: productCurrency(product),
             benchmark,
-            benchmark_source: `CardTrader mediana ${others.length} offerte stessa condizione`,
+            benchmark_source: `CardTrader media ${others.length} offerte stessa condizione e lingua`,
             discount_pct: Math.round(discount * 10) / 10,
             margin: Math.round((benchmark - price) * 100) / 100,
             roi: Math.round(((benchmark - price) / price) * 1000) / 10,
