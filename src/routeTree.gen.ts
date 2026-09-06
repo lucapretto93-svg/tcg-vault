@@ -21,6 +21,7 @@ import { Route as AuthenticatedPrezziRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSealedRouteImport } from './routes/_authenticated/sealed'
 import { Route as AuthenticatedSetProgressRouteImport } from './routes/_authenticated/set-progress'
 import { Route as AuthenticatedVenditeRouteImport } from './routes/_authenticated/vendite'
+import { Route as ApiPublicCronUpdatePricesRouteImport } from './routes/api/public/cron/update-prices'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -83,6 +84,12 @@ const AuthenticatedVenditeRoute = AuthenticatedVenditeRouteImport.update({
   path: '/vendite',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicCronUpdatePricesRoute =
+  ApiPublicCronUpdatePricesRouteImport.update({
+    id: '/api/public/cron/update-prices',
+    path: '/api/public/cron/update-prices',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
   '/vendite': typeof AuthenticatedVenditeRoute
+  '/api/public/cron/update-prices': typeof ApiPublicCronUpdatePricesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,6 +117,7 @@ export interface FileRoutesByTo {
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
   '/vendite': typeof AuthenticatedVenditeRoute
+  '/api/public/cron/update-prices': typeof ApiPublicCronUpdatePricesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,6 +133,7 @@ export interface FileRoutesById {
   '/_authenticated/sealed': typeof AuthenticatedSealedRoute
   '/_authenticated/set-progress': typeof AuthenticatedSetProgressRoute
   '/_authenticated/vendite': typeof AuthenticatedVenditeRoute
+  '/api/public/cron/update-prices': typeof ApiPublicCronUpdatePricesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/sealed'
     | '/set-progress'
     | '/vendite'
+    | '/api/public/cron/update-prices'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/sealed'
     | '/set-progress'
     | '/vendite'
+    | '/api/public/cron/update-prices'
   id:
     | '__root__'
     | '/'
@@ -166,12 +178,14 @@ export interface FileRouteTypes {
     | '/_authenticated/sealed'
     | '/_authenticated/set-progress'
     | '/_authenticated/vendite'
+    | '/api/public/cron/update-prices'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicCronUpdatePricesRoute: typeof ApiPublicCronUpdatePricesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -260,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVenditeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cron/update-prices': {
+      id: '/api/public/cron/update-prices'
+      path: '/api/public/cron/update-prices'
+      fullPath: '/api/public/cron/update-prices'
+      preLoaderRoute: typeof ApiPublicCronUpdatePricesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -294,6 +315,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicCronUpdatePricesRoute: ApiPublicCronUpdatePricesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

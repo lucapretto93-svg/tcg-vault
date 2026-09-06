@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { itemsQuery } from "@/lib/queries";
-import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
+import { buildSetProgress, completionCost, setCompletionTargets } from "@/lib/setProgress";
+import { eur } from "@/lib/calc";
 
 export const Route = createFileRoute("/_authenticated/set-progress")({
   head: () => ({
@@ -63,6 +64,29 @@ function SetProgressPage() {
                   </span>
                 </div>
                 <Progress value={g.percent ?? 0} />
+                {(() => {
+                  const cost = completionCost(g);
+                  return (
+                    <div className="rounded-md bg-muted/40 p-2 text-xs">
+                      <p className="uppercase tracking-wide text-muted-foreground">
+                        Costo stimato per completare
+                      </p>
+                      {cost.estimate == null ? (
+                        <p className="mt-1">
+                          Dato mancante: nessun prezzo disponibile per questo set.
+                        </p>
+                      ) : (
+                        <p className="mt-1">
+                          <span className="text-sm font-semibold">{eur(cost.estimate)}</span>{" "}
+                          <span className="text-muted-foreground">
+                            · {cost.missing} mancanti × {eur(cost.perCard)} (stima sui{" "}
+                            {cost.pricedSamples} prezzi reali del set)
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
                 <div>
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">Mancanti</p>
                   {g.total == null ? (

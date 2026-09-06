@@ -1,5 +1,7 @@
 import type { CardRow, ItemRow } from "./types";
 import { getCard } from "./types";
+import { latestPrice } from "./calc";
+import { valuePriceType } from "./analytics";
 
 export interface SetGroup {
   key: string;
@@ -121,4 +123,38 @@ export function setCompletionTargets(groups: SetGroup[], limit = 40): MissingTar
     }
   }
   return targets;
+}
+
+/**
+ * Costo stimato per completare un set.
+ * Non esistono righe di prezzo per le carte che non possiedi: l'unica base reale
+ * disponibile sono i prezzi delle carte già possedute dello stesso set/lingua.
+ * Se non ce ne sono, il dato viene dichiarato mancante invece di essere inventato.
+ */
+export interface CompletionCost {
+  estimate: number | null;
+  perCard: number | null;
+  pricedSamples: number;
+  missing: number;
+}
+
+export function completionCost(group: SetGroup): CompletionCost {
+  const values: number[] = [];
+  for (const item of group.items) {
+    const type = valuePriceType(item);
+    const row = type ? latestPrice(item, type) : null;
+    if (row && Number(row.value) > 0) values.push(Number(row.value));
+  }
+  const missing = group.missingNumbers.length;
+  if (values.length === 0 || missing === 0) {
+    return { estimate: null, perCard: null, pricedSamples: values.length, missing };
+  }
+  values.sort((a, b) => a - b);
+  const median = values[Math.floor(values.length / 2)]!;
+  return {
+    estimate: median * missing,
+    perCard: median,
+    pricedSamples: values.length,
+    missing,
+  };
 }

@@ -1,5 +1,6 @@
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,22 @@ import { ItemPhoto } from "@/components/ItemPhoto";
 import { DECISION_LABELS, INVESTMENT_DECISIONS, getLatestDecision, getCoverImage } from "@/lib/types";
 import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
+import { PortfolioChart } from "@/components/PortfolioChart";
+import {
+  buildAlerts,
+  incompleteItems,
+  movers,
+  priceFreshness,
+  segmentValues,
+} from "@/lib/analytics";
+import {
+  filterRange,
+  portfolioDailyChange,
+  snapshotsQuery,
+  upsertTodaySnapshot,
+  type RangeKey,
+} from "@/lib/portfolio";
+import { isPriceSourceConfigured, priceSourceQuery } from "@/lib/priceSource";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -50,6 +67,31 @@ function Metric({ label, value, hint }: { label: string; value: string; hint?: s
 
 function DashboardPage() {
   const { data: items } = useSuspenseQuery(itemsQuery());
+  const qc = useQueryClient();
+  const { data: snapshots = [] } = useQuery(snapshotsQuery());
+  const { data: priceSource = null } = useQuery(priceSourceQuery());
+  const [range, setRange] = useState<RangeKey>("30G");
+
+  const seg = useMemo(() => segmentValues(items), [items]);
+  const mv = useMemo(() => movers(items), [items]);
+  const alerts = useMemo(() => buildAlerts(items), [items]);
+  const incomplete = useMemo(() => incompleteItems(items), [items]);
+  const stale = useMemo(
+    () =>
+      items.filter((i) => i.status !== "SOLD" && priceFreshness(i).status !== "FRESH").length,
+    [items],
+  );
+  const chartRows = useMemo(() => filterRange(snapshots, range), [snapshots, range]);
+  const daily = useMemo(() => portfolioDailyChange(snapshots), [snapshots]);
+
+  // Snapshot giornaliero idempotente: una sola riga per giorno, storico mai sovrascritto.
+  useEffect(() => {
+    if (items.length === 0) return;
+    upsertTodaySnapshot(items)
+      .then(() => qc.invalidateQueries({ queryKey: ["portfolio_snapshots"] }))
+      .catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
   const p = buildPortfolio(items);
   const groups = buildSetProgress(items);
   const targets = setCompletionTargets(groups, 8);
@@ -110,6 +152,186 @@ function DashboardPage() {
         <Metric label="Profitto non realizzato" value={eur(p.unrealized)} />
         <Metric label="ROI complessivo" value={pct(p.roi)} />
         <Metric label="Da gradare" value={String(p.toGrade.length)} hint="uplift atteso positivo" />
+      </div>
+
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle className="text-base">Storico portafoglio</CardTitle>
+              <div className="flex gap-1">
+                {(["7G", "30G", "90G", "1A"] as RangeKey[]).map((r) => (
+                  <Button
+                    key={r}
+                    size="sm"
+                    variant={range === r ? "default" : "outline"}
+                    className="h-8 px-2 text-xs"
+                    onClick={() => setRange(r)}
+                  >
+                    {r}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <PortfolioChart rows={chartRows} />
+            <p className="mt-2 text-xs text-muted-foreground">
+              {daily
+                ? `Variazione ultimo giorno: ${daily.abs >= 0 ? "+" : ""}${eur(daily.abs)}${
+                    daily.pct == null ? "" : ` (${pct(daily.pct)})`
+                  }`
+                : "Variazione giornaliera disponibile dal secondo giorno di rilevazioni."}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Segmenti</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex justify-between"><span>Raw</span><span>{eur(seg.raw)}</span></div>
+            <div className="flex justify-between"><span>Slab</span><span>{eur(seg.slab)}</span></div>
+            <div className="flex justify-between"><span>Sealed</span><span>{eur(seg.sealed)}</span></div>
+            <div className="flex justify-between border-t border-border pt-2 font-semibold">
+              <span>Totale</span><span>{eur(seg.total)}</span>
+            </div>
+            <div className="flex justify-between text-muted-foreground">
+              <span>Collezione</span>
+              <span>{items.filter((i) => i.bucket !== "STOCK" && i.status !== "SOLD").length}</span>
+            </div>
+            <div className="flex justify-between text-muted-foreground">
+              <span>Stock da vendere</span>
+              <span>{items.filter((i) => i.bucket === "STOCK" && i.status !== "SOLD").length}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Top gainers</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {mv.gainers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Nessun rialzo: servono almeno due rilevazioni di prezzo.
+              </p>
+            ) : (
+              mv.gainers.map(({ item, change }) => (
+                <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate">{itemTitle(item)}</span>
+                  <Badge>{`+${eur(change.abs)}`}</Badge>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Top losers</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {mv.losers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nessun calo rilevato.</p>
+            ) : (
+              mv.losers.map(({ item, change }) => (
+                <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate">{itemTitle(item)}</span>
+                  <Badge variant="destructive">{eur(change.abs)}</Badge>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Avvisi</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {alerts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nessun avviso attivo.</p>
+            ) : (
+              alerts.slice(0, 8).map((a) => (
+                <div key={a.id} className="text-sm">
+                  <div className="flex items-center gap-2">
+                    <Badge variant={a.level === "WARN" ? "destructive" : "default"}>
+                      {a.title}
+                    </Badge>
+                  </div>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {itemTitle(a.item)} — {a.detail}
+                  </p>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Dati da completare</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {incomplete.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Tutte le schede sono complete.</p>
+            ) : (
+              incomplete.slice(0, 8).map((row) => (
+                <div key={row.item.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate">{itemTitle(row.item)}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {row.missing.join(", ")}
+                  </span>
+                </div>
+              ))
+            )}
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Button asChild size="sm" variant="outline">
+                <Link to="/carte">Apri carte</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/prezzi">Aggiorna prezzi</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/set-progress">Set progress</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Fonte prezzi</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {isPriceSourceConfigured(priceSource) ? (
+              <>
+                <Badge>Fonte attiva: {priceSource!.provider}</Badge>
+                <p className="text-xs text-muted-foreground">
+                  Ultimo aggiornamento: {priceSource!.last_run_at ?? "mai eseguito"}
+                </p>
+              </>
+            ) : (
+              <>
+                <Badge variant="destructive">Fonte prezzi non configurata</Badge>
+                <p className="text-xs text-muted-foreground">
+                  L'aggiornamento automatico è pronto ma non scrive nulla finché non colleghi una
+                  fonte autorizzata. I prezzi restano quelli inseriti manualmente.
+                </p>
+              </>
+            )}
+            <p className="text-xs text-muted-foreground">
+              {stale} oggetti con prezzo non aggiornato o mai prezzato.
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
