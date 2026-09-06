@@ -135,6 +135,10 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
           if (!benchmark || benchmark <= 0) continue;
           const discount = ((benchmark - price) / benchmark) * 100;
           if (discount < threshold) continue;
+          // Solo offerte CardTrader Zero (niente spese di spedizione separate)
+          if (!isZeroEligible(product)) continue;
+          // Ricavo potenziale minimo: almeno 5 € tra prezzo e benchmark
+          if (benchmark - price < 5) continue;
 
           const scores = computeDealScore({
             discountPct: discount,
