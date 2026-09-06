@@ -12,6 +12,7 @@ import { ItemPhoto } from "@/components/ItemPhoto";
 import { itemsQuery } from "@/lib/queries";
 import { ALMOST_COMPLETE, buildCollection } from "@/lib/collection";
 import { eur } from "@/lib/calc";
+import { stockImageFor, stockSetQuery } from "@/lib/stockImages";
 import { getCard, getCoverImage } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/collezione/$setKey")({
