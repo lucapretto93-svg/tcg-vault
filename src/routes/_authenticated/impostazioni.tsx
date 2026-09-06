@@ -36,6 +36,8 @@ function ImpostazioniPage() {
   return (
     <AppShell title="Impostazioni" subtitle="Account ed export dati">
       <div className="grid gap-4 lg:grid-cols-2">
+        <CardtraderSettingsPanel />
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Account</CardTitle>
