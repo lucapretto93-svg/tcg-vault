@@ -52,7 +52,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             className={cn(
               "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               active
-                ? "bg-sidebar-accent text-sidebar-primary"
+                ? "poke-nav-active bg-sidebar-accent"
                 : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
             )}
           >
@@ -143,14 +143,14 @@ export function AppShell({
               <span className="hidden sm:block lg:hidden">
                 <VaultLogo compact />
               </span>
-              <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">{title}</h1>
+              <h1 className="poke-title truncate text-lg font-extrabold tracking-tight md:text-xl">{title}</h1>
             </div>
             {subtitle ? <p className="truncate text-xs text-muted-foreground">{subtitle}</p> : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">{actions}</div>
         </header>
 
-        <main className="app-content flex-1 p-4 md:p-6">{children}</main>
+        <main className="app-content poke-main flex-1 p-4 md:p-6">{children}</main>
       </div>
     </div>
   );
