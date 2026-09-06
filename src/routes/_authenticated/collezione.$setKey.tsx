@@ -107,19 +107,30 @@ function SetDetailPage() {
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
         {set.slots.map((slot) => {
+          const stockUrl = stockImageFor(stock, slot.number);
           if (!slot.owned) {
             return (
               <div
                 key={slot.key}
-                className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-2 opacity-60"
+                className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-2 opacity-70"
               >
-                <div className="aspect-[63/88] w-full rounded-md bg-background/40" />
+                {stockUrl ? (
+                  <img
+                    src={stockUrl}
+                    alt={`Carta #${slot.number} del set ${set.setName}`}
+                    loading="lazy"
+                    className="aspect-[63/88] w-full rounded-md object-cover grayscale"
+                  />
+                ) : (
+                  <div className="aspect-[63/88] w-full rounded-md bg-background/40" />
+                )}
                 <p className="mt-2 text-center text-xs text-muted-foreground">#{slot.number}</p>
               </div>
             );
           }
           const item = slot.items[0]!;
           const card = getCard(item);
+          const cover = getCoverImage(item);
           return (
             <CardDetailDialog
               key={slot.key}
