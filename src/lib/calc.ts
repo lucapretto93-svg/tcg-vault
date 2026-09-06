@@ -1,3 +1,4 @@
+import { getCardGrade, gradedPriceType, isGradedCard } from "./types";
 import type { GradingRow, ItemRow, PriceRow, PriceType } from "./types";
 
 export function latestPrice(item: ItemRow, type: PriceType): PriceRow | null {
@@ -69,10 +70,18 @@ export function currentValue(item: ItemRow): number {
   if (item.item_type === "SEALED") {
     return Number(latestPrice(item, "SEALED")?.value ?? 0) * quantity(item);
   }
+  if (isGradedCard(item)) {
+    const type = gradedPriceType(getCardGrade(item));
+    const graded = type ? latestPrice(item, type)?.value : undefined;
+    // Per uno slab il valore raw non è il valore corrente: si usa il prezzo del grade.
+    return Number(graded ?? 0);
+  }
   return Number(latestPrice(item, "RAW")?.value ?? 0);
 }
 
 export function expectedGradedValue(item: ItemRow): number {
+  // Gli scenari PSA hanno senso solo per le carte raw: uno slab ha già il suo voto.
+  if (isGradedCard(item)) return 0;
   const g = latestGrading(item);
   if (!g) return 0;
   const pairs: [PriceType, number][] = [
