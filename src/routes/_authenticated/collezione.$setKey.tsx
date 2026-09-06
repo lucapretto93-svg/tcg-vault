@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { ItemPhoto } from "@/components/ItemPhoto";
 import { itemsQuery } from "@/lib/queries";
 import { ALMOST_COMPLETE, buildCollection } from "@/lib/collection";
 import { eur } from "@/lib/calc";
+import { stockImageFor, stockSetQuery } from "@/lib/stockImages";
 import { getCard, getCoverImage } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/collezione/$setKey")({
@@ -39,6 +40,10 @@ function SetDetailPage() {
   const key = decodeURIComponent(setKey);
   const { data: items } = useSuspenseQuery(itemsQuery());
   const set = useMemo(() => buildCollection(items).find((s) => s.key === key) ?? null, [items, key]);
+  const { data: stock } = useQuery({
+    ...stockSetQuery(set?.setName ?? null, set?.setCode ?? null),
+    enabled: !!set,
+  });
 
   if (!set) {
     return (
@@ -102,19 +107,30 @@ function SetDetailPage() {
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
         {set.slots.map((slot) => {
+          const stockUrl = stockImageFor(stock, slot.number);
           if (!slot.owned) {
             return (
               <div
                 key={slot.key}
-                className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-2 opacity-60"
+                className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-2 opacity-70"
               >
-                <div className="aspect-[63/88] w-full rounded-md bg-background/40" />
+                {stockUrl ? (
+                  <img
+                    src={stockUrl}
+                    alt={`Carta #${slot.number} del set ${set.setName}`}
+                    loading="lazy"
+                    className="aspect-[63/88] w-full rounded-md object-cover grayscale"
+                  />
+                ) : (
+                  <div className="aspect-[63/88] w-full rounded-md bg-background/40" />
+                )}
                 <p className="mt-2 text-center text-xs text-muted-foreground">#{slot.number}</p>
               </div>
             );
           }
           const item = slot.items[0]!;
           const card = getCard(item);
+          const cover = getCoverImage(item);
           return (
             <CardDetailDialog
               key={slot.key}
@@ -125,11 +141,26 @@ function SetDetailPage() {
                   className="rounded-lg border border-border bg-card p-2 text-left transition-colors hover:border-primary/60"
                 >
                   <div className="relative">
-                    <ItemPhoto
-                      image={getCoverImage(item)}
-                      alt={card?.card_name || card?.pokemon_name || "Carta"}
-                      className="aspect-[63/88] w-full"
-                    />
+                    {cover ? (
+                      <ItemPhoto
+                        image={cover}
+                        alt={card?.card_name || card?.pokemon_name || "Carta"}
+                        className="aspect-[63/88] w-full"
+                      />
+                    ) : stockUrl ? (
+                      <img
+                        src={stockUrl}
+                        alt={card?.card_name || card?.pokemon_name || "Carta"}
+                        loading="lazy"
+                        className="aspect-[63/88] w-full rounded-md object-cover"
+                      />
+                    ) : (
+                      <ItemPhoto
+                        image={null}
+                        alt={card?.card_name || card?.pokemon_name || "Carta"}
+                        className="aspect-[63/88] w-full"
+                      />
+                    )}
                     {slot.items.length > 1 ? (
                       <Badge className="absolute right-1 top-1">x{slot.items.length}</Badge>
                     ) : null}
