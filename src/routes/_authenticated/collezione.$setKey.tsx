@@ -40,6 +40,10 @@ function SetDetailPage() {
   const key = decodeURIComponent(setKey);
   const { data: items } = useSuspenseQuery(itemsQuery());
   const set = useMemo(() => buildCollection(items).find((s) => s.key === key) ?? null, [items, key]);
+  const { data: stock } = useQuery({
+    ...stockSetQuery(set?.setName ?? null, set?.setCode ?? null),
+    enabled: !!set,
+  });
 
   if (!set) {
     return (
