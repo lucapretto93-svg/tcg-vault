@@ -1,0 +1,14 @@
+{
+  "name": "TCG Vault — Pokémon Collection Manager",
+  "short_name": "TCG Vault",
+  "description": "Vault personale per collezione Pokémon: valore, ROI, grading, set e radar occasioni CardTrader.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0d12",
+  "theme_color": "#0b0d12",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "64x64 32x32 24x24 16x16", "type": "image/x-icon" }
+  ]
+}

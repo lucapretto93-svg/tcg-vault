@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery } from "@/lib/queries";
 import { exportCsv, exportJson } from "@/lib/exporters";
+import { CardtraderSettingsPanel } from "@/components/CardtraderSettingsPanel";
 
 export const Route = createFileRoute("/_authenticated/impostazioni")({
   head: () => ({
@@ -36,6 +37,8 @@ function ImpostazioniPage() {
   return (
     <AppShell title="Impostazioni" subtitle="Account ed export dati">
       <div className="grid gap-4 lg:grid-cols-2">
+        <CardtraderSettingsPanel />
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Account</CardTitle>

@@ -13,6 +13,7 @@ import { DECISION_LABELS, INVESTMENT_DECISIONS, getLatestDecision, getCoverImage
 import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
 import { PortfolioChart } from "@/components/PortfolioChart";
+import { CardtraderRadar } from "@/components/CardtraderRadar";
 import {
   buildAlerts,
   incompleteItems,
@@ -142,6 +143,12 @@ function DashboardPage() {
           </div>
         </div>
       </section>
+
+      <section className="mb-5">
+        <CardtraderRadar />
+      </section>
+
+
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Carte" value={String(p.cardCount)} hint="in collezione" />

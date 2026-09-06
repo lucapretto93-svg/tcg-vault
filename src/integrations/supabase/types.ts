@@ -185,6 +185,245 @@ export type Database = {
           },
         ]
       }
+      cardtrader_deals: {
+        Row: {
+          all_in_cost: number | null
+          benchmark: number | null
+          benchmark_source: string | null
+          blueprint_id: string | null
+          card_name: string
+          card_number: string | null
+          condition: string | null
+          created_at: string
+          currency: string
+          deal_score: number
+          discount_pct: number | null
+          expansion_code: string | null
+          first_seen_at: string
+          foil: boolean
+          id: string
+          image_url: string | null
+          language: string | null
+          last_seen_at: string
+          liquidity_score: number | null
+          margin: number | null
+          notified_at: string | null
+          price: number
+          product_id: string
+          quality_score: number | null
+          roi: number | null
+          seller_country: string | null
+          seller_name: string | null
+          set_name: string | null
+          shipping_estimate: number | null
+          status: string
+          url: string | null
+          user_id: string
+          zero_eligible: boolean
+        }
+        Insert: {
+          all_in_cost?: number | null
+          benchmark?: number | null
+          benchmark_source?: string | null
+          blueprint_id?: string | null
+          card_name?: string
+          card_number?: string | null
+          condition?: string | null
+          created_at?: string
+          currency?: string
+          deal_score?: number
+          discount_pct?: number | null
+          expansion_code?: string | null
+          first_seen_at?: string
+          foil?: boolean
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          last_seen_at?: string
+          liquidity_score?: number | null
+          margin?: number | null
+          notified_at?: string | null
+          price?: number
+          product_id: string
+          quality_score?: number | null
+          roi?: number | null
+          seller_country?: string | null
+          seller_name?: string | null
+          set_name?: string | null
+          shipping_estimate?: number | null
+          status?: string
+          url?: string | null
+          user_id: string
+          zero_eligible?: boolean
+        }
+        Update: {
+          all_in_cost?: number | null
+          benchmark?: number | null
+          benchmark_source?: string | null
+          blueprint_id?: string | null
+          card_name?: string
+          card_number?: string | null
+          condition?: string | null
+          created_at?: string
+          currency?: string
+          deal_score?: number
+          discount_pct?: number | null
+          expansion_code?: string | null
+          first_seen_at?: string
+          foil?: boolean
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          last_seen_at?: string
+          liquidity_score?: number | null
+          margin?: number | null
+          notified_at?: string | null
+          price?: number
+          product_id?: string
+          quality_score?: number | null
+          roi?: number | null
+          seller_country?: string | null
+          seller_name?: string | null
+          set_name?: string | null
+          shipping_estimate?: number | null
+          status?: string
+          url?: string | null
+          user_id?: string
+          zero_eligible?: boolean
+        }
+        Relationships: []
+      }
+      cardtrader_listings: {
+        Row: {
+          blueprint_id: string | null
+          condition: string | null
+          created_at: string
+          currency: string
+          id: string
+          item_id: string
+          language: string | null
+          last_error: string | null
+          listing_id: string | null
+          price: number
+          product_id: string | null
+          quantity: number
+          status: string
+          synced_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blueprint_id?: string | null
+          condition?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          item_id: string
+          language?: string | null
+          last_error?: string | null
+          listing_id?: string | null
+          price?: number
+          product_id?: string | null
+          quantity?: number
+          status?: string
+          synced_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          blueprint_id?: string | null
+          condition?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          item_id?: string
+          language?: string | null
+          last_error?: string | null
+          listing_id?: string | null
+          price?: number
+          product_id?: string | null
+          quantity?: number
+          status?: string
+          synced_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cardtrader_listings_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cardtrader_settings: {
+        Row: {
+          alert_deal_score: number
+          alert_discount: number
+          allowed_conditions: string[]
+          created_at: string
+          discount_threshold: number
+          eras: string[]
+          id: string
+          languages: string[]
+          last_scan_at: string | null
+          last_scan_message: string | null
+          last_scan_status: string | null
+          max_price: number
+          notes: string | null
+          push_enabled: boolean
+          radar_enabled: boolean
+          telegram_enabled: boolean
+          updated_at: string
+          user_id: string
+          whatsapp_enabled: boolean
+        }
+        Insert: {
+          alert_deal_score?: number
+          alert_discount?: number
+          allowed_conditions?: string[]
+          created_at?: string
+          discount_threshold?: number
+          eras?: string[]
+          id?: string
+          languages?: string[]
+          last_scan_at?: string | null
+          last_scan_message?: string | null
+          last_scan_status?: string | null
+          max_price?: number
+          notes?: string | null
+          push_enabled?: boolean
+          radar_enabled?: boolean
+          telegram_enabled?: boolean
+          updated_at?: string
+          user_id: string
+          whatsapp_enabled?: boolean
+        }
+        Update: {
+          alert_deal_score?: number
+          alert_discount?: number
+          allowed_conditions?: string[]
+          created_at?: string
+          discount_threshold?: number
+          eras?: string[]
+          id?: string
+          languages?: string[]
+          last_scan_at?: string | null
+          last_scan_message?: string | null
+          last_scan_status?: string | null
+          max_price?: number
+          notes?: string | null
+          push_enabled?: boolean
+          radar_enabled?: boolean
+          telegram_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+          whatsapp_enabled?: boolean
+        }
+        Relationships: []
+      }
       condition_assessments: {
         Row: {
           centering_back: string | null
@@ -658,6 +897,36 @@ export type Database = {
           total_cost?: number
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
