@@ -38,6 +38,8 @@ export async function createItemWithPurchase(input: {
       }
     | undefined;
   rawValue?: number | undefined;
+  /** Tipo di prezzo per il valore inserito (RAW per le carte raw, PSAn per gli slab). */
+  valueType?: PriceType | undefined;
   notes?: string | undefined;
 }) {
   const userId = await currentUserId();
@@ -64,7 +66,7 @@ export async function createItemWithPurchase(input: {
   if (input.rawValue && input.rawValue > 0) {
     await addPrice({
       itemId: item.id,
-      price_type: input.item_type === "CARD" ? "RAW" : "SEALED",
+      price_type: input.valueType ?? (input.item_type === "CARD" ? "RAW" : "SEALED"),
       value: input.rawValue,
       source: "Inserimento manuale",
     });
@@ -235,6 +237,7 @@ export async function updateItemWithRawValue(
   card: CardInput,
   notes: string,
   rawValue?: number,
+  valueType: PriceType = "RAW",
 ) {
   await updateCard(itemId, card, notes);
 
@@ -244,7 +247,7 @@ export async function updateItemWithRawValue(
     .from("market_prices")
     .select("value")
     .eq("item_id", itemId)
-    .eq("price_type", "RAW")
+    .eq("price_type", valueType)
     .order("observed_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -254,7 +257,7 @@ export async function updateItemWithRawValue(
 
   await addPrice({
     itemId,
-    price_type: "RAW",
+    price_type: valueType,
     value: rawValue,
     source: "Aggiornamento manuale",
   });
