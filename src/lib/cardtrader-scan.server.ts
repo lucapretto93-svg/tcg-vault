@@ -122,7 +122,22 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
         if (group.length < MIN_COMPARABLES) continue;
         const prices = group.map(productPrice).filter((p) => p > 0);
         if (prices.length < MIN_COMPARABLES) continue;
-        for (const product of group) {
+        // Sniping reale: considera solo l'offerta più bassa del gruppo e richiede
+        // un vero salto rispetto alla successiva (stessa lingua/condizione/variante).
+        // Es. 2 € vs prossima a 6 € = occasione; 2 € vs 2,01 € = no.
+        const sorted = [...group].sort((a, b) => productPrice(a) - productPrice(b));
+        const [cheapest, second] = sorted;
+        if (!cheapest || !second) continue;
+        const nextPrice = productPrice(second);
+        const cheapestPrice = productPrice(cheapest);
+        if (
+          cheapestPrice <= 0 ||
+          nextPrice <= 0 ||
+          nextPrice < cheapestPrice * 1.3 // salto minimo 30% sulla prossima offerta
+        ) {
+          continue;
+        }
+        for (const product of [cheapest]) {
           const price = productPrice(product);
           if (price <= 0 || price > maxPrice) continue;
           const condition = productCondition(product);
