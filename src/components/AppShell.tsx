@@ -2,6 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Layers,
+  LibraryBig,
   Package,
   ShoppingCart,
   Receipt,
@@ -22,7 +23,8 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/carte", label: "Carte", icon: Layers },
+  { to: "/collezione", label: "Collezione", icon: LibraryBig },
+  { to: "/carte", label: "Inventario", icon: Layers },
   { to: "/sealed", label: "Sealed", icon: Package },
   { to: "/acquisti", label: "Acquisti", icon: ShoppingCart },
   { to: "/vendite", label: "Vendite", icon: Receipt },
