@@ -14,9 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAcquistiRouteImport } from './routes/_authenticated/acquisti'
 import { Route as AuthenticatedCarteRouteImport } from './routes/_authenticated/carte'
+import { Route as AuthenticatedDaMuovereRouteImport } from './routes/_authenticated/da-muovere'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGradingRouteImport } from './routes/_authenticated/grading'
 import { Route as AuthenticatedImpostazioniRouteImport } from './routes/_authenticated/impostazioni'
+import { Route as AuthenticatedOccasioniRouteImport } from './routes/_authenticated/occasioni'
 import { Route as AuthenticatedPrezziRouteImport } from './routes/_authenticated/prezzi'
 import { Route as AuthenticatedSealedRouteImport } from './routes/_authenticated/sealed'
 import { Route as AuthenticatedSetProgressRouteImport } from './routes/_authenticated/set-progress'
@@ -50,6 +52,11 @@ const AuthenticatedCarteRoute = AuthenticatedCarteRouteImport.update({
   path: '/carte',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDaMuovereRoute = AuthenticatedDaMuovereRouteImport.update({
+  id: '/da-muovere',
+  path: '/da-muovere',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -66,6 +73,11 @@ const AuthenticatedImpostazioniRoute =
     path: '/impostazioni',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOccasioniRoute = AuthenticatedOccasioniRouteImport.update({
+  id: '/occasioni',
+  path: '/occasioni',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPrezziRoute = AuthenticatedPrezziRouteImport.update({
   id: '/prezzi',
   path: '/prezzi',
@@ -117,9 +129,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/acquisti': typeof AuthenticatedAcquistiRoute
   '/carte': typeof AuthenticatedCarteRoute
+  '/da-muovere': typeof AuthenticatedDaMuovereRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/grading': typeof AuthenticatedGradingRoute
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/occasioni': typeof AuthenticatedOccasioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
@@ -134,9 +148,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/acquisti': typeof AuthenticatedAcquistiRoute
   '/carte': typeof AuthenticatedCarteRoute
+  '/da-muovere': typeof AuthenticatedDaMuovereRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/grading': typeof AuthenticatedGradingRoute
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/occasioni': typeof AuthenticatedOccasioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
@@ -153,9 +169,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/acquisti': typeof AuthenticatedAcquistiRoute
   '/_authenticated/carte': typeof AuthenticatedCarteRoute
+  '/_authenticated/da-muovere': typeof AuthenticatedDaMuovereRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/grading': typeof AuthenticatedGradingRoute
   '/_authenticated/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/_authenticated/occasioni': typeof AuthenticatedOccasioniRoute
   '/_authenticated/prezzi': typeof AuthenticatedPrezziRoute
   '/_authenticated/sealed': typeof AuthenticatedSealedRoute
   '/_authenticated/set-progress': typeof AuthenticatedSetProgressRoute
@@ -172,9 +190,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/acquisti'
     | '/carte'
+    | '/da-muovere'
     | '/dashboard'
     | '/grading'
     | '/impostazioni'
+    | '/occasioni'
     | '/prezzi'
     | '/sealed'
     | '/set-progress'
@@ -189,9 +209,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/acquisti'
     | '/carte'
+    | '/da-muovere'
     | '/dashboard'
     | '/grading'
     | '/impostazioni'
+    | '/occasioni'
     | '/prezzi'
     | '/sealed'
     | '/set-progress'
@@ -207,9 +229,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/acquisti'
     | '/_authenticated/carte'
+    | '/_authenticated/da-muovere'
     | '/_authenticated/dashboard'
     | '/_authenticated/grading'
     | '/_authenticated/impostazioni'
+    | '/_authenticated/occasioni'
     | '/_authenticated/prezzi'
     | '/_authenticated/sealed'
     | '/_authenticated/set-progress'
@@ -265,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCarteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/da-muovere': {
+      id: '/_authenticated/da-muovere'
+      path: '/da-muovere'
+      fullPath: '/da-muovere'
+      preLoaderRoute: typeof AuthenticatedDaMuovereRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -284,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/impostazioni'
       fullPath: '/impostazioni'
       preLoaderRoute: typeof AuthenticatedImpostazioniRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/occasioni': {
+      id: '/_authenticated/occasioni'
+      path: '/occasioni'
+      fullPath: '/occasioni'
+      preLoaderRoute: typeof AuthenticatedOccasioniRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prezzi': {
@@ -348,9 +386,11 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAcquistiRoute: typeof AuthenticatedAcquistiRoute
   AuthenticatedCarteRoute: typeof AuthenticatedCarteRoute
+  AuthenticatedDaMuovereRoute: typeof AuthenticatedDaMuovereRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGradingRoute: typeof AuthenticatedGradingRoute
   AuthenticatedImpostazioniRoute: typeof AuthenticatedImpostazioniRoute
+  AuthenticatedOccasioniRoute: typeof AuthenticatedOccasioniRoute
   AuthenticatedPrezziRoute: typeof AuthenticatedPrezziRoute
   AuthenticatedSealedRoute: typeof AuthenticatedSealedRoute
   AuthenticatedSetProgressRoute: typeof AuthenticatedSetProgressRoute
@@ -362,9 +402,11 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAcquistiRoute: AuthenticatedAcquistiRoute,
   AuthenticatedCarteRoute: AuthenticatedCarteRoute,
+  AuthenticatedDaMuovereRoute: AuthenticatedDaMuovereRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGradingRoute: AuthenticatedGradingRoute,
   AuthenticatedImpostazioniRoute: AuthenticatedImpostazioniRoute,
+  AuthenticatedOccasioniRoute: AuthenticatedOccasioniRoute,
   AuthenticatedPrezziRoute: AuthenticatedPrezziRoute,
   AuthenticatedSealedRoute: AuthenticatedSealedRoute,
   AuthenticatedSetProgressRoute: AuthenticatedSetProgressRoute,

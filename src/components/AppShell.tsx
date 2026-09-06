@@ -9,6 +9,8 @@ import {
   Award,
   LineChart,
   Target,
+  Rocket,
+  Radar,
   Settings,
   Menu,
   LogOut,
@@ -23,6 +25,8 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/da-muovere", label: "Da muovere", icon: Rocket },
+  { to: "/occasioni", label: "Occasioni", icon: Radar },
   { to: "/collezione", label: "Collezione", icon: LibraryBig },
   { to: "/carte", label: "Inventario", icon: Layers },
   { to: "/sealed", label: "Sealed", icon: Package },

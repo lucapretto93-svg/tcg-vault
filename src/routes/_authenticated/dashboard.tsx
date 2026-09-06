@@ -14,6 +14,8 @@ import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
 import { PortfolioChart } from "@/components/PortfolioChart";
 import { CardtraderRadar } from "@/components/CardtraderRadar";
+import { MoveList } from "@/components/MoveList";
+import { buildMoves } from "@/lib/actions";
 import {
   buildAlerts,
   incompleteItems,
@@ -76,6 +78,7 @@ function DashboardPage() {
   const seg = useMemo(() => segmentValues(items), [items]);
   const mv = useMemo(() => movers(items), [items]);
   const alerts = useMemo(() => buildAlerts(items), [items]);
+  const moves = useMemo(() => buildMoves(items), [items]);
   const incomplete = useMemo(() => incompleteItems(items), [items]);
   const stale = useMemo(
     () =>
@@ -145,7 +148,29 @@ function DashboardPage() {
       </section>
 
       <section className="mb-5">
-        <CardtraderRadar />
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Carte da muovere</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Prima da gradare o da vendere, ordinate per guadagno atteso.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{moves.length}</Badge>
+              <Button asChild size="sm" className="min-h-11">
+                <Link to="/da-muovere">Vedi tutte</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <MoveList rows={moves.slice(0, 5)} />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mb-5">
+        <CardtraderRadar limit={5} />
       </section>
 
 
