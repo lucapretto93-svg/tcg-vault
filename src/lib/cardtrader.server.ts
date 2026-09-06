@@ -200,3 +200,9 @@ export async function ctBlueprints(expansionId: number): Promise<
 > {
   return ctFetch(`/blueprints/export?expansion_id=${expansionId}`);
 }
+
+export type CtGame = { id: number; name: string; display_name?: string };
+
+export async function ctGames(): Promise<CtGame[]> {
+  return ctFetch<CtGame[]>("/games");
+}
