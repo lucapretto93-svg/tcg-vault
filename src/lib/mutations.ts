@@ -107,6 +107,54 @@ export async function createItemWithPurchase(input: {
   return item.id;
 }
 
+export async function setItemPurchaseCost(itemId: string, cost: number) {
+  const { data: links, error: linksError } = await supabase
+    .from("purchase_items")
+    .select("id, purchase_id")
+    .eq("item_id", itemId)
+    .limit(1);
+  if (linksError) throw new Error(linksError.message);
+
+  const link = links?.[0];
+  if (link) {
+    const { error } = await supabase
+      .from("purchase_items")
+      .update({ allocated_cost: cost })
+      .eq("id", link.id);
+    if (error) throw new Error(error.message);
+    return;
+  }
+
+  const userId = await currentUserId();
+  const { data: purchase, error: purchaseError } = await supabase
+    .from("purchases")
+    .insert({
+      user_id: userId,
+      purchase_date: new Date().toISOString().slice(0, 10),
+      platform: "Collezione personale",
+      seller: "Collezione personale",
+      item_price: cost,
+      shipping: 0,
+      fees: 0,
+      taxes: 0,
+      total_cost: cost,
+      currency: "EUR",
+      notes: cost === 0 ? "Costo storico 0 EUR" : null,
+    })
+    .select("id")
+    .single();
+  if (purchaseError || !purchase) {
+    throw new Error(purchaseError?.message ?? "Errore creazione acquisto");
+  }
+
+  const { error: linkError } = await supabase.from("purchase_items").insert({
+    purchase_id: purchase.id,
+    item_id: itemId,
+    allocated_cost: cost,
+  });
+  if (linkError) throw new Error(linkError.message);
+}
+
 export async function sellItem(input: {
   itemId: string;
   sale_date: string;
