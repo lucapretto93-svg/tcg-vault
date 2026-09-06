@@ -97,8 +97,12 @@ export type Database = {
         Row: {
           card_name: string
           card_number: string | null
+          card_state: string
           created_at: string
           first_edition: boolean
+          graded_certificate: string | null
+          graded_company: string | null
+          graded_grade: number | null
           holo: boolean
           id: string
           item_id: string
@@ -120,8 +124,12 @@ export type Database = {
         Insert: {
           card_name?: string
           card_number?: string | null
+          card_state?: string
           created_at?: string
           first_edition?: boolean
+          graded_certificate?: string | null
+          graded_company?: string | null
+          graded_grade?: number | null
           holo?: boolean
           id?: string
           item_id: string
@@ -143,8 +151,12 @@ export type Database = {
         Update: {
           card_name?: string
           card_number?: string | null
+          card_state?: string
           created_at?: string
           first_edition?: boolean
+          graded_certificate?: string | null
+          graded_company?: string | null
+          graded_grade?: number | null
           holo?: boolean
           id?: string
           item_id?: string
@@ -338,6 +350,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "grading_assessments_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investment_decisions: {
+        Row: {
+          buy_it_now_price: number | null
+          created_at: string
+          currency: string
+          decision: string
+          id: string
+          item_id: string
+          min_acceptable_price: number | null
+          rationale: string | null
+          updated_at: string
+        }
+        Insert: {
+          buy_it_now_price?: number | null
+          created_at?: string
+          currency?: string
+          decision?: string
+          id?: string
+          item_id: string
+          min_acceptable_price?: number | null
+          rationale?: string | null
+          updated_at?: string
+        }
+        Update: {
+          buy_it_now_price?: number | null
+          created_at?: string
+          currency?: string
+          decision?: string
+          id?: string
+          item_id?: string
+          min_acceptable_price?: number | null
+          rationale?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investment_decisions_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "items"
