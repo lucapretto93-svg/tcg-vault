@@ -9,6 +9,8 @@ import {
   Award,
   LineChart,
   Target,
+  Rocket,
+  Radar,
   Settings,
   Menu,
   LogOut,
