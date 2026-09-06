@@ -49,13 +49,13 @@ export function CardtraderSellButton({ item }: { item: ItemRow }) {
   const [language, setLanguage] = useState((card?.language ?? "en").toLowerCase());
   const [results, setResults] = useState<{ id: number; name: string; expansion: string }[]>([]);
 
+  const statusFn = useServerFn(cardtraderStatus);
   const status = useQuery({
     queryKey: ["cardtrader_status"],
     queryFn: () => statusFn({}),
     enabled: open,
     staleTime: 60_000,
   });
-  const statusFn = useServerFn(cardtraderStatus);
   const searchFn = useServerFn(searchCardtraderBlueprints);
   const publishFn = useServerFn(publishCardtraderListing);
   const updateFn = useServerFn(updateCardtraderListing);
