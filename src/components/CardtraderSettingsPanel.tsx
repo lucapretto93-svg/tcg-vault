@@ -144,7 +144,7 @@ export function CardtraderSettingsPanel() {
     onSuccess: (result) => {
       if (!result.configured) return toast.warning("Chiavi push non configurate lato server.");
       if (result.sent > 0) return toast.success(`Notifica di prova inviata a ${result.sent} dispositivo/i`);
-      toast.warning("Nessun dispositivo registrato: premi prima \"Attiva push su questo dispositivo\".");
+      return toast.warning("Nessun dispositivo registrato: premi prima \"Attiva push su questo dispositivo\".");
     },
     onError: (error: Error) => toast.error(error.message),
   });
