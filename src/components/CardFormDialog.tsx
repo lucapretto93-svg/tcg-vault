@@ -15,7 +15,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createItemWithPurchase, updateItemWithRawValue, uploadImage } from "@/lib/mutations";
+import {
+  createItemWithPurchase,
+  setItemPurchaseCost,
+  updateItemWithRawValue,
+  uploadImage,
+} from "@/lib/mutations";
 import {
   getCurrentRawValue,
   getPurchaseCost,
@@ -200,6 +205,7 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
         "RAW";
       if (item) {
         await updateItemWithRawValue(item.id, card, form.notes, rawValue, valueType);
+        if (purchasePrice !== undefined) await setItemPurchaseCost(item.id, purchasePrice);
         return;
       }
       const newId = await createItemWithPurchase({
@@ -209,7 +215,7 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
         notes: form.notes,
         rawValue,
         valueType,
-        purchase: purchasePrice
+        purchase: purchasePrice !== undefined
           ? {
               purchase_date: new Date().toISOString().slice(0, 10),
               platform: "",
@@ -228,7 +234,7 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
-      if (!item && form.purchasePrice) {
+      if (form.purchasePrice !== "") {
         qc.invalidateQueries({ queryKey: ["purchases"] });
       }
       toast.success(item ? "Carta aggiornata" : "Carta aggiunta");
@@ -366,23 +372,16 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
               onChange={(e) => set("rawValue", e.target.value)}
             />
           </div>
-          {!item ? (
-            <div className="space-y-1.5">
-              <Label>Prezzo acquisto (€)</Label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.purchasePrice}
-                onChange={(e) => set("purchasePrice", e.target.value)}
-              />
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              <Label>Costo acquisto (€)</Label>
-              <Input value={form.purchasePrice} disabled />
-            </div>
-          )}
+          <div className="space-y-1.5">
+            <Label>Costo acquisto (€)</Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.purchasePrice}
+              onChange={(e) => set("purchasePrice", e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="mt-2 flex flex-wrap gap-4">
