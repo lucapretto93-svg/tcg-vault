@@ -72,7 +72,7 @@ function SetProgressPage() {
                   ) : g.missingNumbers.length === 0 ? (
                     <p className="mt-1 text-sm text-emerald-400">Set completo.</p>
                   ) : (
-                    <p className="mt-1 flex flex-wrap gap-1">
+                    <div className="mt-1 flex flex-wrap gap-1">
                       {g.missingNumbers.slice(0, 40).map((n) => (
                         <Badge key={n} variant="outline">
                           #{n}
@@ -83,7 +83,7 @@ function SetProgressPage() {
                           +{g.missingNumbers.length - 40} altre
                         </span>
                       ) : null}
-                    </p>
+                    </div>
                   )}
                 </div>
               </CardContent>
