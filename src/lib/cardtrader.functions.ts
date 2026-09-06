@@ -13,12 +13,15 @@ export const cardtraderStatus = createServerFn({ method: "POST" })
     const telegramConfigured =
       !!process.env["TELEGRAM_BOT_TOKEN"] && !!process.env["TELEGRAM_CHAT_ID"];
     const pushConfigured = !!process.env["VAPID_PUBLIC_KEY"] && !!process.env["VAPID_PRIVATE_KEY"];
+    const { isWhatsappConfigured } = await import("./whatsapp.server");
+    const whatsappConfigured = isWhatsappConfigured();
     if (!hasCardtraderToken()) {
       return {
         connected: false,
         tokenConfigured: false,
         telegramConfigured,
         pushConfigured,
+        whatsappConfigured,
         account: null as string | null,
         error: "Token CardTrader non configurato.",
       };
@@ -30,6 +33,7 @@ export const cardtraderStatus = createServerFn({ method: "POST" })
         tokenConfigured: true,
         telegramConfigured,
         pushConfigured,
+        whatsappConfigured,
         account: info?.name ?? info?.email ?? "Account CardTrader",
         error: null as string | null,
       };
@@ -39,6 +43,7 @@ export const cardtraderStatus = createServerFn({ method: "POST" })
         tokenConfigured: true,
         telegramConfigured,
         pushConfigured,
+        whatsappConfigured,
         account: null as string | null,
         error: error instanceof Error ? error.message : "Connessione fallita",
       };

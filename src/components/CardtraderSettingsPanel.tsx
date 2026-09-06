@@ -18,7 +18,7 @@ import {
   runCardtraderScan,
   sendCardtraderTestAlert,
 } from "@/lib/cardtrader.functions";
-import { getPushConfig, savePushSubscription } from "@/lib/push.functions";
+import { getPushConfig, savePushSubscription, sendTestPush, sendTestWhatsapp } from "@/lib/push.functions";
 
 function toggle(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -38,6 +38,8 @@ export function CardtraderSettingsPanel() {
   const testAlertFn = useServerFn(sendCardtraderTestAlert);
   const pushConfigFn = useServerFn(getPushConfig);
   const saveSubFn = useServerFn(savePushSubscription);
+  const testPushFn = useServerFn(sendTestPush);
+  const testWhatsappFn = useServerFn(sendTestWhatsapp);
 
   const status = useQuery({
     queryKey: ["cardtrader_status"],
@@ -134,6 +136,30 @@ export function CardtraderSettingsPanel() {
       result.sent
         ? toast.success("Messaggio Telegram inviato")
         : toast.warning("Telegram non configurato: aggiungi TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID nei Secrets."),
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const testPush = useMutation({
+    mutationFn: () => testPushFn({}),
+    onSuccess: (result) => {
+      if (!result.configured) return toast.warning("Chiavi push non configurate lato server.");
+      if (result.sent > 0) return toast.success(`Notifica di prova inviata a ${result.sent} dispositivo/i`);
+      return toast.warning("Nessun dispositivo registrato: premi prima \"Attiva push su questo dispositivo\".");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const testWhatsapp = useMutation({
+    mutationFn: () => testWhatsappFn({}),
+    onSuccess: (result) => {
+      if (!result.configured)
+        return toast.warning(
+          "WhatsApp non configurato: servono i dati del provider Twilio (numero mittente e numero destinatario).",
+        );
+      return result.ok
+        ? toast.success("Messaggio WhatsApp inviato")
+        : toast.error(result.error ?? "Invio WhatsApp fallito");
+    },
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -270,6 +296,12 @@ export function CardtraderSettingsPanel() {
             <Button size="sm" variant="outline" disabled={enablePush.isPending} onClick={() => enablePush.mutate()}>
               {form.push_enabled ? "Riattiva push su questo dispositivo" : "Attiva push (iPhone: da app installata)"}
             </Button>
+            <Button size="sm" variant="outline" disabled={testPush.isPending} onClick={() => testPush.mutate()}>
+              Invia notifica di prova
+            </Button>
+            <Button size="sm" variant="outline" disabled={testWhatsapp.isPending} onClick={() => testWhatsapp.mutate()}>
+              Test WhatsApp
+            </Button>
             <Button size="sm" variant="outline" disabled={testAlert.isPending} onClick={() => testAlert.mutate()}>
               Test Telegram
             </Button>
@@ -291,10 +323,14 @@ export function CardtraderSettingsPanel() {
               checked={form.whatsapp_enabled}
               onChange={(e) => setForm({ ...form, whatsapp_enabled: e.target.checked })}
             />
-            WhatsApp (predisposto: richiede un provider esterno, non attivo)
+            Alert WhatsApp per affari eccezionali
+            {status.data?.whatsappConfigured ? null : (
+              <span className="text-xs text-muted-foreground">(provider non ancora configurato)</span>
+            )}
           </label>
           <p className="text-xs text-muted-foreground">
-            Push: {status.data?.pushConfigured ? "chiavi server configurate" : "chiavi server VAPID non ancora configurate"}.
+            Push: {status.data?.pushConfigured ? "attive lato server" : "chiavi server non configurate"}. Su iPhone
+            aggiungi prima TCG Vault alla schermata Home (Safari → Condividi → Aggiungi a Home) e apri l'app da lì.
           </p>
         </div>
 
