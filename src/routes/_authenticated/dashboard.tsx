@@ -143,6 +143,12 @@ function DashboardPage() {
         </div>
       </section>
 
+      <section className="mb-5">
+        <CardtraderRadar />
+      </section>
+
+
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Carte" value={String(p.cardCount)} hint="in collezione" />
         <Metric label="Sealed" value={String(p.sealedCount)} hint="pezzi totali" />
