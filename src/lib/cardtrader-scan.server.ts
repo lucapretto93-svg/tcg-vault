@@ -126,8 +126,9 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
         // un vero salto rispetto alla successiva (stessa lingua/condizione/variante).
         // Es. 2 € vs prossima a 6 € = occasione; 2 € vs 2,01 € = no.
         const sorted = [...group].sort((a, b) => productPrice(a) - productPrice(b));
-        const cheapest = sorted[0];
-        const nextPrice = productPrice(sorted[1]);
+        const [cheapest, second] = sorted;
+        if (!cheapest || !second) continue;
+        const nextPrice = productPrice(second);
         const cheapestPrice = productPrice(cheapest);
         if (
           cheapestPrice <= 0 ||
