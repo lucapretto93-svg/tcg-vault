@@ -206,5 +206,8 @@ export async function ctBlueprints(expansionId: number): Promise<
 export type CtGame = { id: number; name: string; display_name?: string };
 
 export async function ctGames(): Promise<CtGame[]> {
-  return ctFetch<CtGame[]>("/games");
+  // L'API risponde con { array: [...] } su /games (a differenza di /expansions).
+  const payload = await ctFetch<CtGame[] | { array?: CtGame[] }>("/games");
+  if (Array.isArray(payload)) return payload;
+  return payload?.array ?? [];
 }
