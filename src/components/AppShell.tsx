@@ -40,10 +40,10 @@ const NAV = [
 ] as const;
 
 const MOBILE_NAV = [
-  { to: "/dashboard", label: "Home", icon: LayoutDashboard },
-  { to: "/collezione", label: "Collezione", icon: LibraryBig },
+  { to: "/dashboard", label: "Home", icon: LayoutDashboard, featured: false },
+  { to: "/collezione", label: "Collezione", icon: LibraryBig, featured: false },
   { to: "/da-muovere", label: "Muovi", icon: Rocket, featured: true },
-  { to: "/occasioni", label: "Occasioni", icon: Radar },
+  { to: "/occasioni", label: "Occasioni", icon: Radar, featured: false },
 ] as const;
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
