@@ -18,6 +18,17 @@ import {
 } from "@/lib/cardtrader";
 import { runCardtraderScan } from "@/lib/cardtrader.functions";
 import { eur } from "@/lib/calc";
+import { itemsQuery } from "@/lib/queries";
+
+function norm(value: string | null | undefined): string {
+  return (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+type DealSort = "score" | "set";
 
 function scoreTone(score: number): string {
   if (score >= 90) return "bg-amber-500/15 text-amber-400 border-amber-500/40";
@@ -25,7 +36,15 @@ function scoreTone(score: number): string {
   return "bg-muted text-muted-foreground";
 }
 
-function DealCard({ deal, onStatus }: { deal: CardtraderDeal; onStatus: (s: CardtraderDeal["status"]) => void }) {
+function DealCard({
+  deal,
+  onStatus,
+  ownedInSet,
+}: {
+  deal: CardtraderDeal;
+  onStatus: (s: CardtraderDeal["status"]) => void;
+  ownedInSet?: number;
+}) {
   return (
     <article className="flex flex-col gap-3 rounded-xl border border-border bg-card/60 p-3">
       <div className="flex items-start gap-3">
@@ -50,6 +69,7 @@ function DealCard({ deal, onStatus }: { deal: CardtraderDeal; onStatus: (s: Card
             {deal.zero_eligible ? <Badge variant="outline">CT Zero</Badge> : null}
             {deal.status === "NEW" ? <Badge>Nuova</Badge> : null}
             {deal.status === "SAVED" ? <Badge variant="secondary">Watchlist</Badge> : null}
+            {ownedInSet ? <Badge variant="secondary">Hai già {ownedInSet} del set</Badge> : null}
           </div>
         </div>
         <span className={`rounded-md border px-2 py-1 text-xs font-bold ${scoreTone(deal.deal_score)}`}>
@@ -108,11 +128,40 @@ function DealCard({ deal, onStatus }: { deal: CardtraderDeal; onStatus: (s: Card
 export function CardtraderRadar() {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
+  const [sort, setSort] = useState<DealSort>("score");
   const { data: settings } = useQuery(cardtraderSettingsQuery());
   const { data: deals = [] } = useQuery(cardtraderDealsQuery());
+  const { data: items = [] } = useQuery(itemsQuery());
   const scan = useServerFn(runCardtraderScan);
 
-  const visible = useMemo(() => sortDeals(activeDeals(deals)), [deals]);
+  // Quante carte possiedi già in ciascun set: più ne hai, più il set è vicino a chiudersi.
+  const ownedBySet = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    for (const item of items) {
+      const card = item.cards[0];
+      if (!card) continue;
+      const keys = [norm(card.set_name), norm(card.set_code)].filter(Boolean);
+      for (const key of keys) {
+        const nums = map.get(key) ?? new Set<string>();
+        nums.add(norm(card.card_number) || card.id);
+        map.set(key, nums);
+      }
+    }
+    return new Map([...map].map(([k, v]) => [k, v.size]));
+  }, [items]);
+
+  const setUrgency = (deal: CardtraderDeal): number =>
+    Math.max(ownedBySet.get(norm(deal.set_name)) ?? 0, ownedBySet.get(norm(deal.expansion_code)) ?? 0);
+
+  const visible = useMemo(() => {
+    const sorted = sortDeals(activeDeals(deals));
+    if (sort === "score") return sorted;
+    return [...sorted].sort((a, b) => {
+      const diff = setUrgency(b) - setUrgency(a);
+      if (diff !== 0) return diff;
+      return b.deal_score - a.deal_score;
+    });
+  }, [deals, sort, ownedBySet]);
   const shown = expanded ? visible : visible.slice(0, 6);
   const newCount = newDealsCount(deals);
 
@@ -150,7 +199,23 @@ export function CardtraderRadar() {
               : "Nessuna scansione ancora eseguita."}
           </CardDescription>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-md border border-border p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setSort("score")}
+              className={`rounded px-2 py-1 ${sort === "score" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              Miglior affare
+            </button>
+            <button
+              type="button"
+              onClick={() => setSort("set")}
+              className={`rounded px-2 py-1 ${sort === "set" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              Chiudi i set
+            </button>
+          </div>
           <Button size="sm" variant="outline" disabled={runScan.isPending} onClick={() => runScan.mutate()}>
             <RefreshCw className={`mr-1 h-4 w-4 ${runScan.isPending ? "animate-spin" : ""}`} /> Scansiona
           </Button>
@@ -178,6 +243,7 @@ export function CardtraderRadar() {
               <DealCard
                 key={deal.id}
                 deal={deal}
+                ownedInSet={setUrgency(deal)}
                 onStatus={(next) => status.mutate({ id: deal.id, status: next })}
               />
             ))}

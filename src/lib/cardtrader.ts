@@ -41,6 +41,7 @@ export interface CardtraderDeal {
   id: string;
   product_id: string;
   blueprint_id: string | null;
+  expansion_code: string | null;
   card_name: string;
   set_name: string | null;
   card_number: string | null;
