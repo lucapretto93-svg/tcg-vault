@@ -10,6 +10,7 @@ export function InvestmentDecisionSummary({ item }: { item: ItemRow }) {
   const value = currentValue(item);
   const profit = value - cost;
   const currentRoi = roi(item);
+  const hasPurchase = item.purchase_items.length > 0;
 
   return (
     <section className="rounded-lg border border-border p-4">
@@ -34,7 +35,7 @@ export function InvestmentDecisionSummary({ item }: { item: ItemRow }) {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <p className="text-xs text-muted-foreground">Costo acquisto</p>
-          <p className="font-semibold">{cost > 0 ? eur(cost) : "Da completare"}</p>
+          <p className="font-semibold">{hasPurchase ? eur(cost) : "Da completare"}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Valore corrente</p>
@@ -44,21 +45,23 @@ export function InvestmentDecisionSummary({ item }: { item: ItemRow }) {
           <p className="text-xs text-muted-foreground">Profit / Loss</p>
           <p
             className={
-              cost > 0 && value > 0
+              hasPurchase && value > 0
                 ? profit >= 0
                   ? "font-semibold text-emerald-400"
                   : "font-semibold text-destructive"
                 : "font-semibold"
             }
           >
-            {cost > 0 && value > 0 ? eur(profit) : "Da completare"}
+            {hasPurchase && value > 0 ? eur(profit) : "Da completare"}
           </p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">ROI</p>
           <p className="font-semibold">
-            {currentRoi == null
-              ? "Da completare"
+            {hasPurchase && cost === 0
+              ? "N/D — costo 0"
+              : currentRoi == null
+                ? "Da completare"
               : `${currentRoi >= 0 ? "+" : ""}${currentRoi.toFixed(1)}%`}
           </p>
         </div>
