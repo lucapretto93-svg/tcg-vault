@@ -17,6 +17,7 @@ import { currentValue, eur, expectedGradedValue, expectedProfit, expectedUplift,
 import { getBackImage, getExtraImages, getFrontImage, PRICE_TYPES, type ImageRow, type ItemRow } from "@/lib/types";
 
 type ImageType = "COVER" | "FRONT" | "BACK" | "EXTRA";
+// Un acquisto a costo zero è completo; il ROI resta non definito per divisione per zero.
 function Field({ label, value }: { label: string; value: ReactNode }) { return <div><p className="text-xs text-muted-foreground">{label}</p><div className="mt-0.5 text-sm font-medium">{value || "—"}</div></div>; }
 
 export function CardDetailDialog({ item, trigger }: { item: ItemRow; trigger: ReactNode }) {
