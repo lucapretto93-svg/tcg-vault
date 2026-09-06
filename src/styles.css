@@ -312,6 +312,67 @@
       32px 32px;
   }
 
+  .poke-main {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .poke-main::before {
+    position: fixed;
+    top: -14vh;
+    right: -12vw;
+    z-index: -1;
+    width: 58vw;
+    max-width: 620px;
+    aspect-ratio: 1;
+    content: "";
+    pointer-events: none;
+    opacity: 0.09;
+    border-radius: 9999px;
+    background:
+      radial-gradient(circle, var(--color-background) 0 11%, transparent 11.5%),
+      linear-gradient(
+        to bottom,
+        var(--pokedex-red) 0 47%,
+        var(--color-foreground) 47% 53%,
+        transparent 53%
+      );
+    border: 6px solid color-mix(in oklch, var(--color-foreground) 60%, transparent);
+  }
+
+  .poke-nav-active {
+    position: relative;
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--pokedex-red) 26%, transparent),
+      transparent 80%
+    );
+    color: var(--color-sidebar-primary);
+  }
+
+  .poke-nav-active::before {
+    position: absolute;
+    top: 20%;
+    bottom: 20%;
+    left: 0;
+    width: 3px;
+    content: "";
+    border-radius: 9999px;
+    background: var(--pokedex-red-bright);
+    box-shadow: 0 0 10px color-mix(in oklch, var(--pokedex-red-bright) 80%, transparent);
+  }
+
+  .poke-title {
+    background: linear-gradient(
+      92deg,
+      var(--color-foreground),
+      color-mix(in oklch, var(--pokedex-red-bright) 55%, var(--color-foreground))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .pokedex-auth {
     border-color: color-mix(in oklch, var(--pokedex-red-bright) 35%, var(--color-border));
     box-shadow:
