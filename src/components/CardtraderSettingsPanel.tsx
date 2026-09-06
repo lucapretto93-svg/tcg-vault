@@ -49,7 +49,7 @@ export function CardtraderSettingsPanel() {
 
   const [form, setForm] = useState({
     radar_enabled: false,
-    discount_threshold: 35,
+    discount_threshold: 30,
     max_price: 100,
     allowed_conditions: ["Mint", "Near Mint", "Slightly Played"] as string[],
     languages: ["en", "it", "jp"] as string[],
