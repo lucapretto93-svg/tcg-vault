@@ -25,7 +25,9 @@ import {
 } from "@/components/ui/table";
 import { itemsQuery, salesQuery } from "@/lib/queries";
 import { sellItem } from "@/lib/mutations";
-import { dateIt, eur, itemTitle } from "@/lib/calc";
+import { dateIt, eur, itemSubtitle, itemTitle } from "@/lib/calc";
+import { EbaySellButton } from "@/components/EbaySellButton";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/vendite")({
   head: () => ({
@@ -176,6 +178,38 @@ function SellDialog() {
   );
 }
 
+function SellableItems() {
+  const { data: items } = useSuspenseQuery(itemsQuery());
+  const sellable = items.filter((i) => i.status !== "SOLD");
+  if (sellable.length === 0) return null;
+
+  return (
+    <section className="mb-6 rounded-lg border border-border bg-card/40 p-4">
+      <h2 className="mb-1 font-semibold">Pronti da vendere</h2>
+      <p className="mb-3 text-xs text-muted-foreground">
+        Prepara l'inserzione eBay con i dati reali dell'oggetto. Nessuna pubblicazione automatica.
+      </p>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {sellable.map((i) => (
+          <li
+            key={i.id}
+            className="flex flex-col gap-2 rounded-md border border-border/70 p-3 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{itemTitle(i)}</p>
+              <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>
+              <Badge variant="secondary" className="mt-1 text-[10px]">
+                {i.bucket === "STOCK" ? "Stock" : "Collezione"}
+              </Badge>
+            </div>
+            <EbaySellButton item={i} size="sm" className="w-full sm:w-auto" />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function VenditePage() {
   const { data: sales } = useSuspenseQuery(salesQuery());
   const total = sales.reduce((s, v) => s + Number(v.net_revenue || 0), 0);
@@ -186,6 +220,7 @@ function VenditePage() {
       subtitle={`${sales.length} vendite · ${eur(total)} netti`}
       actions={<SellDialog />}
     >
+      <SellableItems />
       {sales.length === 0 ? (
         <p className="text-sm text-muted-foreground">Nessuna vendita registrata.</p>
       ) : (

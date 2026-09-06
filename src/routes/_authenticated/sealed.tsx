@@ -5,6 +5,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { SealedFormDialog } from "@/components/SealedFormDialog";
+import { EbaySellButton } from "@/components/EbaySellButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -118,7 +119,8 @@ function SealedPage() {
                   <TableCell className="text-right">{eur(currentValue(i))}</TableCell>
                   <TableCell className="text-right">{pct(roi(i))}</TableCell>
                   <TableCell>
-                    <div className="flex justify-end gap-1">
+                    <div className="flex flex-wrap items-center justify-end gap-1">
+                      {i.status !== "SOLD" ? <EbaySellButton item={i} size="sm" /> : null}
                       <SealedFormDialog
                         item={i}
                         trigger={
