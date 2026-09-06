@@ -23,6 +23,7 @@ import { Route as AuthenticatedSetProgressRouteImport } from './routes/_authenti
 import { Route as AuthenticatedVenditeRouteImport } from './routes/_authenticated/vendite'
 import { Route as AuthenticatedCollezioneIndexRouteImport } from './routes/_authenticated/collezione.index'
 import { Route as AuthenticatedCollezioneSetKeyRouteImport } from './routes/_authenticated/collezione.$setKey'
+import { Route as ApiPublicCronCardtraderScanRouteImport } from './routes/api/public/cron/cardtrader-scan'
 import { Route as ApiPublicCronUpdatePricesRouteImport } from './routes/api/public/cron/update-prices'
 
 const IndexRoute = IndexRouteImport.update({
@@ -98,6 +99,12 @@ const AuthenticatedCollezioneSetKeyRoute =
     path: '/collezione/$setKey',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicCronCardtraderScanRoute =
+  ApiPublicCronCardtraderScanRouteImport.update({
+    id: '/api/public/cron/cardtrader-scan',
+    path: '/api/public/cron/cardtrader-scan',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronUpdatePricesRoute =
   ApiPublicCronUpdatePricesRouteImport.update({
     id: '/api/public/cron/update-prices',
@@ -119,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/vendite': typeof AuthenticatedVenditeRoute
   '/collezione/$setKey': typeof AuthenticatedCollezioneSetKeyRoute
   '/collezione/': typeof AuthenticatedCollezioneIndexRoute
+  '/api/public/cron/cardtrader-scan': typeof ApiPublicCronCardtraderScanRoute
   '/api/public/cron/update-prices': typeof ApiPublicCronUpdatePricesRoute
 }
 export interface FileRoutesByTo {
@@ -135,6 +143,7 @@ export interface FileRoutesByTo {
   '/vendite': typeof AuthenticatedVenditeRoute
   '/collezione/$setKey': typeof AuthenticatedCollezioneSetKeyRoute
   '/collezione': typeof AuthenticatedCollezioneIndexRoute
+  '/api/public/cron/cardtrader-scan': typeof ApiPublicCronCardtraderScanRoute
   '/api/public/cron/update-prices': typeof ApiPublicCronUpdatePricesRoute
 }
 export interface FileRoutesById {
@@ -153,6 +162,7 @@ export interface FileRoutesById {
   '/_authenticated/vendite': typeof AuthenticatedVenditeRoute
   '/_authenticated/collezione/$setKey': typeof AuthenticatedCollezioneSetKeyRoute
   '/_authenticated/collezione/': typeof AuthenticatedCollezioneIndexRoute
+  '/api/public/cron/cardtrader-scan': typeof ApiPublicCronCardtraderScanRoute
   '/api/public/cron/update-prices': typeof ApiPublicCronUpdatePricesRoute
 }
 export interface FileRouteTypes {
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/vendite'
     | '/collezione/$setKey'
     | '/collezione/'
+    | '/api/public/cron/cardtrader-scan'
     | '/api/public/cron/update-prices'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/vendite'
     | '/collezione/$setKey'
     | '/collezione'
+    | '/api/public/cron/cardtrader-scan'
     | '/api/public/cron/update-prices'
   id:
     | '__root__'
@@ -204,6 +216,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vendite'
     | '/_authenticated/collezione/$setKey'
     | '/_authenticated/collezione/'
+    | '/api/public/cron/cardtrader-scan'
     | '/api/public/cron/update-prices'
   fileRoutesById: FileRoutesById
 }
@@ -211,6 +224,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicCronCardtraderScanRoute: typeof ApiPublicCronCardtraderScanRoute
   ApiPublicCronUpdatePricesRoute: typeof ApiPublicCronUpdatePricesRoute
 }
 
@@ -314,6 +328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCollezioneSetKeyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cron/cardtrader-scan': {
+      id: '/api/public/cron/cardtrader-scan'
+      path: '/api/public/cron/cardtrader-scan'
+      fullPath: '/api/public/cron/cardtrader-scan'
+      preLoaderRoute: typeof ApiPublicCronCardtraderScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/update-prices': {
       id: '/api/public/cron/update-prices'
       path: '/api/public/cron/update-prices'
@@ -359,6 +380,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicCronCardtraderScanRoute: ApiPublicCronCardtraderScanRoute,
   ApiPublicCronUpdatePricesRoute: ApiPublicCronUpdatePricesRoute,
 }
 export const routeTree = rootRouteImport
