@@ -214,24 +214,41 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
     const exceptional = toInsert.filter(
       (c) => Number(c["deal_score"]) >= alertScore || Number(c["discount_pct"]) >= alertDiscount,
     );
-    if (settings.telegram_enabled) {
-      for (const deal of exceptional.slice(0, 5)) {
-        const sent = await sendTelegram(
-          `TCG Vault — affare CardTrader\n${deal["card_name"]} (${deal["set_name"]})\n` +
-            `${deal["condition"]} ${deal["language"] ?? ""}\n` +
-            `Prezzo ${deal["price"]} € vs benchmark ${deal["benchmark"]} € · -${deal["discount_pct"]}% · score ${deal["deal_score"]}\n` +
-            `${deal["url"]}`,
-        );
-        if (sent) {
-          alerts += 1;
-          await supabaseAdmin
-            .from("cardtrader_deals")
-            .update({ notified_at: new Date().toISOString() })
-            .eq("user_id", userId)
-            .eq("product_id", String(deal["product_id"]));
-        }
+    const { sendPushToUser } = await import("./webpush.server");
+    const { sendWhatsapp, isWhatsappConfigured } = await import("./whatsapp.server");
+    for (const deal of exceptional.slice(0, 5)) {
+      const text =
+        `TCG Vault — affare CardTrader\n${deal["card_name"]} (${deal["set_name"]})\n` +
+        `${deal["condition"]} ${deal["language"] ?? ""}\n` +
+        `Prezzo ${deal["price"]} € vs benchmark ${deal["benchmark"]} € · -${deal["discount_pct"]}% · score ${deal["deal_score"]}\n` +
+        `${deal["url"]}`;
+      let sent = false;
+      if (settings.telegram_enabled) {
+        sent = (await sendTelegram(text)) || sent;
+      }
+      if (settings.push_enabled) {
+        const push = await sendPushToUser(userId, {
+          title: `Affare −${deal["discount_pct"]}% · ${deal["card_name"]}`,
+          body: `${deal["price"]} € (benchmark ${deal["benchmark"]} €) · ${deal["condition"]} ${deal["language"] ?? ""}`,
+          url: "/dashboard",
+          tag: `deal-${deal["product_id"]}`,
+        });
+        sent = push.sent > 0 || sent;
+      }
+      if (settings.whatsapp_enabled && isWhatsappConfigured()) {
+        const wa = await sendWhatsapp(text);
+        sent = wa.ok || sent;
+      }
+      if (sent) {
+        alerts += 1;
+        await supabaseAdmin
+          .from("cardtrader_deals")
+          .update({ notified_at: new Date().toISOString() })
+          .eq("user_id", userId)
+          .eq("product_id", String(deal["product_id"]));
       }
     }
+
 
     const message = `Scansione completata: ${toInsert.length} nuove occasioni, ${toUpdate.length} aggiornate.`;
     await supabaseAdmin
