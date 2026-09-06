@@ -17,6 +17,7 @@ import { Route as AuthenticatedCarteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGradingRouteImport } from './routes/_authenticated/grading'
 import { Route as AuthenticatedImpostazioniRouteImport } from './routes/_authenticated/impostazioni'
+import { Route as AuthenticatedOccasioniRouteImport } from './routes/_authenticated/occasioni'
 import { Route as AuthenticatedPrezziRouteImport } from './routes/_authenticated/prezzi'
 import { Route as AuthenticatedSealedRouteImport } from './routes/_authenticated/sealed'
 import { Route as AuthenticatedSetProgressRouteImport } from './routes/_authenticated/set-progress'
@@ -66,6 +67,11 @@ const AuthenticatedImpostazioniRoute =
     path: '/impostazioni',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOccasioniRoute = AuthenticatedOccasioniRouteImport.update({
+  id: '/occasioni',
+  path: '/occasioni',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPrezziRoute = AuthenticatedPrezziRouteImport.update({
   id: '/prezzi',
   path: '/prezzi',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/grading': typeof AuthenticatedGradingRoute
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/occasioni': typeof AuthenticatedOccasioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/grading': typeof AuthenticatedGradingRoute
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/occasioni': typeof AuthenticatedOccasioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/grading': typeof AuthenticatedGradingRoute
   '/_authenticated/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/_authenticated/occasioni': typeof AuthenticatedOccasioniRoute
   '/_authenticated/prezzi': typeof AuthenticatedPrezziRoute
   '/_authenticated/sealed': typeof AuthenticatedSealedRoute
   '/_authenticated/set-progress': typeof AuthenticatedSetProgressRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/grading'
     | '/impostazioni'
+    | '/occasioni'
     | '/prezzi'
     | '/sealed'
     | '/set-progress'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/grading'
     | '/impostazioni'
+    | '/occasioni'
     | '/prezzi'
     | '/sealed'
     | '/set-progress'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/grading'
     | '/_authenticated/impostazioni'
+    | '/_authenticated/occasioni'
     | '/_authenticated/prezzi'
     | '/_authenticated/sealed'
     | '/_authenticated/set-progress'
@@ -286,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImpostazioniRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/occasioni': {
+      id: '/_authenticated/occasioni'
+      path: '/occasioni'
+      fullPath: '/occasioni'
+      preLoaderRoute: typeof AuthenticatedOccasioniRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/prezzi': {
       id: '/_authenticated/prezzi'
       path: '/prezzi'
@@ -351,6 +370,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGradingRoute: typeof AuthenticatedGradingRoute
   AuthenticatedImpostazioniRoute: typeof AuthenticatedImpostazioniRoute
+  AuthenticatedOccasioniRoute: typeof AuthenticatedOccasioniRoute
   AuthenticatedPrezziRoute: typeof AuthenticatedPrezziRoute
   AuthenticatedSealedRoute: typeof AuthenticatedSealedRoute
   AuthenticatedSetProgressRoute: typeof AuthenticatedSetProgressRoute
@@ -365,6 +385,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGradingRoute: AuthenticatedGradingRoute,
   AuthenticatedImpostazioniRoute: AuthenticatedImpostazioniRoute,
+  AuthenticatedOccasioniRoute: AuthenticatedOccasioniRoute,
   AuthenticatedPrezziRoute: AuthenticatedPrezziRoute,
   AuthenticatedSealedRoute: AuthenticatedSealedRoute,
   AuthenticatedSetProgressRoute: AuthenticatedSetProgressRoute,
