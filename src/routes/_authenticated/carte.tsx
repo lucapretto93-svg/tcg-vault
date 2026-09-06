@@ -33,7 +33,17 @@ import {
   roi,
   totalCost,
 } from "@/lib/calc";
-import { getCoverImage, type ItemRow } from "@/lib/types";
+import {
+  DECISION_LABELS,
+  getCardGrade,
+  getCardGradingCompany,
+  getCoverImage,
+  getLatestDecision,
+  isGradedCard,
+  type ItemRow,
+} from "@/lib/types";
+
+const money = (n: number) => (n > 0 ? eur(n) : "Da completare");
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/carte")({
@@ -151,7 +161,9 @@ function CartePage() {
                 <TableHead>Stato</TableHead>
                 <TableHead className="text-right">Costo</TableHead>
                 <TableHead className="text-right">Valore</TableHead>
+                <TableHead className="text-right">P/L</TableHead>
                 <TableHead className="text-right">ROI</TableHead>
+                <TableHead>Strategia</TableHead>
                 <TableHead className="w-24" />
               </TableRow>
             </TableHeader>
@@ -172,11 +184,30 @@ function CartePage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{i.status}</Badge>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="secondary">{i.status}</Badge>
+                      <Badge variant={isGradedCard(i) ? "default" : "outline"}>
+                        {isGradedCard(i)
+                          ? `${getCardGradingCompany(i) ?? "GRADED"} ${getCardGrade(i) ?? ""}`.trim()
+                          : "RAW"}
+                      </Badge>
+                    </div>
                   </TableCell>
-                  <TableCell className="text-right">{eur(totalCost(i))}</TableCell>
-                  <TableCell className="text-right">{eur(currentValue(i))}</TableCell>
-                  <TableCell className="text-right">{pct(roi(i))}</TableCell>
+                  <TableCell className="text-right">{money(totalCost(i))}</TableCell>
+                  <TableCell className="text-right">{money(currentValue(i))}</TableCell>
+                  <TableCell className="text-right">
+                    {totalCost(i) > 0 && currentValue(i) > 0
+                      ? eur(currentValue(i) - totalCost(i))
+                      : "Da completare"}
+                  </TableCell>
+                  <TableCell className="text-right">{roi(i) == null ? "Da completare" : pct(roi(i))}</TableCell>
+                  <TableCell>
+                    {getLatestDecision(i) ? (
+                      <Badge>{DECISION_LABELS[getLatestDecision(i)!.decision]}</Badge>
+                    ) : (
+                      <Badge variant="outline">Da completare</Badge>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1">
                       <CardDetailDialog
@@ -225,6 +256,16 @@ function CartePage() {
 
                     <div className="mt-2 flex flex-wrap gap-1">
                       <Badge variant="secondary">{i.status}</Badge>
+                      <Badge variant={isGradedCard(i) ? "default" : "outline"}>
+                        {isGradedCard(i)
+                          ? `${getCardGradingCompany(i) ?? "GRADED"} ${getCardGrade(i) ?? ""}`.trim()
+                          : "RAW"}
+                      </Badge>
+                      {getLatestDecision(i) ? (
+                        <Badge variant="secondary">
+                          {DECISION_LABELS[getLatestDecision(i)!.decision]}
+                        </Badge>
+                      ) : null}
                       {cond?.overall_condition ? (
                         <Badge variant="outline">{cond.overall_condition}</Badge>
                       ) : null}
@@ -245,11 +286,11 @@ function CartePage() {
                     <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                       <div className="min-w-0">
                         <p className="text-muted-foreground">Costo</p>
-                        <p className="truncate font-medium">{eur(totalCost(i))}</p>
+                        <p className="truncate font-medium">{money(totalCost(i))}</p>
                       </div>
                       <div className="min-w-0">
                         <p className="text-muted-foreground">Valore</p>
-                        <p className="truncate font-medium">{eur(currentValue(i))}</p>
+                        <p className="truncate font-medium">{money(currentValue(i))}</p>
                       </div>
                       <div className="min-w-0">
                         <p className="text-muted-foreground">ROI</p>
@@ -259,7 +300,7 @@ function CartePage() {
                             (r ?? 0) >= 0 ? "text-emerald-400" : "text-destructive",
                           )}
                         >
-                          {pct(r)}
+                          {r == null ? "Da completare" : pct(r)}
                         </p>
                       </div>
                     </div>

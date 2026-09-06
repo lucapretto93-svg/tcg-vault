@@ -19,6 +19,7 @@ import { Route as AuthenticatedGradingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedImpostazioniRouteImport } from './routes/_authenticated/impostazioni'
 import { Route as AuthenticatedPrezziRouteImport } from './routes/_authenticated/prezzi'
 import { Route as AuthenticatedSealedRouteImport } from './routes/_authenticated/sealed'
+import { Route as AuthenticatedSetProgressRouteImport } from './routes/_authenticated/set-progress'
 import { Route as AuthenticatedVenditeRouteImport } from './routes/_authenticated/vendite'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,6 +72,12 @@ const AuthenticatedSealedRoute = AuthenticatedSealedRouteImport.update({
   path: '/sealed',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSetProgressRoute =
+  AuthenticatedSetProgressRouteImport.update({
+    id: '/set-progress',
+    path: '/set-progress',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedVenditeRoute = AuthenticatedVenditeRouteImport.update({
   id: '/vendite',
   path: '/vendite',
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
   '/sealed': typeof AuthenticatedSealedRoute
+  '/set-progress': typeof AuthenticatedSetProgressRoute
   '/vendite': typeof AuthenticatedVenditeRoute
 }
 export interface FileRoutesByTo {
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
   '/sealed': typeof AuthenticatedSealedRoute
+  '/set-progress': typeof AuthenticatedSetProgressRoute
   '/vendite': typeof AuthenticatedVenditeRoute
 }
 export interface FileRoutesById {
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/_authenticated/impostazioni': typeof AuthenticatedImpostazioniRoute
   '/_authenticated/prezzi': typeof AuthenticatedPrezziRoute
   '/_authenticated/sealed': typeof AuthenticatedSealedRoute
+  '/_authenticated/set-progress': typeof AuthenticatedSetProgressRoute
   '/_authenticated/vendite': typeof AuthenticatedVenditeRoute
 }
 export interface FileRouteTypes {
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/impostazioni'
     | '/prezzi'
     | '/sealed'
+    | '/set-progress'
     | '/vendite'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/impostazioni'
     | '/prezzi'
     | '/sealed'
+    | '/set-progress'
     | '/vendite'
   id:
     | '__root__'
@@ -152,6 +164,7 @@ export interface FileRouteTypes {
     | '/_authenticated/impostazioni'
     | '/_authenticated/prezzi'
     | '/_authenticated/sealed'
+    | '/_authenticated/set-progress'
     | '/_authenticated/vendite'
   fileRoutesById: FileRoutesById
 }
@@ -233,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSealedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/set-progress': {
+      id: '/_authenticated/set-progress'
+      path: '/set-progress'
+      fullPath: '/set-progress'
+      preLoaderRoute: typeof AuthenticatedSetProgressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/vendite': {
       id: '/_authenticated/vendite'
       path: '/vendite'
@@ -251,6 +271,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedImpostazioniRoute: typeof AuthenticatedImpostazioniRoute
   AuthenticatedPrezziRoute: typeof AuthenticatedPrezziRoute
   AuthenticatedSealedRoute: typeof AuthenticatedSealedRoute
+  AuthenticatedSetProgressRoute: typeof AuthenticatedSetProgressRoute
   AuthenticatedVenditeRoute: typeof AuthenticatedVenditeRoute
 }
 
@@ -262,6 +283,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedImpostazioniRoute: AuthenticatedImpostazioniRoute,
   AuthenticatedPrezziRoute: AuthenticatedPrezziRoute,
   AuthenticatedSealedRoute: AuthenticatedSealedRoute,
+  AuthenticatedSetProgressRoute: AuthenticatedSetProgressRoute,
   AuthenticatedVenditeRoute: AuthenticatedVenditeRoute,
 }
 
