@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { currentUserId } from "./queries";
-import type { CardInput, PriceType } from "./types";
+import type { CardInput, ImageType, InvestmentDecision, PriceType } from "./types";
 
 export async function addPrice(input: {
   itemId: string;
@@ -38,6 +38,8 @@ export async function createItemWithPurchase(input: {
       }
     | undefined;
   rawValue?: number | undefined;
+  /** Tipo di prezzo per il valore inserito (RAW per le carte raw, PSAn per gli slab). */
+  valueType?: PriceType | undefined;
   notes?: string | undefined;
 }) {
   const userId = await currentUserId();
@@ -64,7 +66,7 @@ export async function createItemWithPurchase(input: {
   if (input.rawValue && input.rawValue > 0) {
     await addPrice({
       itemId: item.id,
-      price_type: input.item_type === "CARD" ? "RAW" : "SEALED",
+      price_type: input.valueType ?? (input.item_type === "CARD" ? "RAW" : "SEALED"),
       value: input.rawValue,
       source: "Inserimento manuale",
     });
@@ -172,7 +174,7 @@ export async function saveCondition(input: Record<string, unknown> & { item_id: 
   if (error) throw new Error(error.message);
 }
 
-export async function uploadImage(itemId: string, file: File, type: "FRONT" | "BACK" | "EXTRA") {
+export async function uploadImage(itemId: string, file: File, type: ImageType) {
   const userId = await currentUserId();
   const path = `${userId}/${itemId}/${type}-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
   const { error } = await supabase.storage.from("item-images").upload(path, file);
@@ -186,11 +188,56 @@ export async function uploadImage(itemId: string, file: File, type: "FRONT" | "B
   }
 }
 
+export async function deleteImage(image: {
+  id: string;
+  storage_path: string | null;
+  url: string | null;
+}) {
+  const { data, error } = await supabase
+    .from("card_images")
+    .delete()
+    .eq("id", image.id)
+    .select("id");
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error("Eliminazione foto rifiutata dal database.");
+  const path = image.storage_path ?? (image.url && !/^https?:\/\//.test(image.url) ? image.url : null);
+  if (path) await supabase.storage.from("item-images").remove([path]);
+}
+
+export async function saveDecision(input: {
+  itemId: string;
+  existingId?: string | null;
+  decision: InvestmentDecision;
+  rationale: string | null;
+  buy_it_now_price: number | null;
+  min_acceptable_price: number | null;
+}) {
+  const payload = {
+    decision: input.decision,
+    rationale: input.rationale,
+    buy_it_now_price: input.buy_it_now_price,
+    min_acceptable_price: input.min_acceptable_price,
+  };
+  if (input.existingId) {
+    const { error } = await supabase
+      .from("investment_decisions")
+      .update(payload as never)
+      .eq("id", input.existingId);
+    if (error) throw new Error(error.message);
+    return;
+  }
+  const { error } = await supabase
+    .from("investment_decisions")
+    .insert({ ...payload, item_id: input.itemId } as never);
+  if (error) throw new Error(error.message);
+}
+
 export async function updateItemWithRawValue(
   itemId: string,
   card: CardInput,
   notes: string,
   rawValue?: number,
+  valueType: PriceType = "RAW",
 ) {
   await updateCard(itemId, card, notes);
 
@@ -200,7 +247,7 @@ export async function updateItemWithRawValue(
     .from("market_prices")
     .select("value")
     .eq("item_id", itemId)
-    .eq("price_type", "RAW")
+    .eq("price_type", valueType)
     .order("observed_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -210,7 +257,7 @@ export async function updateItemWithRawValue(
 
   await addPrice({
     itemId,
-    price_type: "RAW",
+    price_type: valueType,
     value: rawValue,
     source: "Aggiornamento manuale",
   });

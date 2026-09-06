@@ -49,6 +49,33 @@ export const CONDITIONS = ["GEM MT", "MINT", "NM", "EX", "GD", "LP", "PL", "PO"]
 
 export const RECOMMENDATIONS = ["GRADA", "VALUTA", "NON GRADARE"] as const;
 
+export type CardState = "RAW" | "GRADED";
+export type ImageType = "COVER" | "FRONT" | "BACK" | "EXTRA";
+export const IMAGE_TYPES: ImageType[] = ["COVER", "FRONT", "BACK", "EXTRA"];
+
+export const GRADING_COMPANIES = ["PSA", "CGC", "BGS", "SGC", "ALTRO"] as const;
+
+export type InvestmentDecision = "KEEP" | "SELL" | "HOLD" | "UPGRADE";
+export const INVESTMENT_DECISIONS: InvestmentDecision[] = ["KEEP", "SELL", "HOLD", "UPGRADE"];
+export const DECISION_LABELS: Record<InvestmentDecision, string> = {
+  KEEP: "TIENI",
+  SELL: "VENDI",
+  HOLD: "ATTENDI",
+  UPGRADE: "UPGRADE",
+};
+
+export interface DecisionRow {
+  id: string;
+  item_id: string;
+  decision: InvestmentDecision;
+  rationale: string | null;
+  buy_it_now_price: number | null;
+  min_acceptable_price: number | null;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CardRow {
   id: string;
   item_id: string;
@@ -69,6 +96,10 @@ export interface CardRow {
   shadowless: boolean;
   promo: boolean;
   notes: string | null;
+  card_state: CardState;
+  graded_company: string | null;
+  graded_grade: number | null;
+  graded_certificate: string | null;
 }
 
 export interface SealedRow {
@@ -88,7 +119,7 @@ export interface SealedRow {
 export interface ImageRow {
   id: string;
   item_id: string;
-  image_type: "FRONT" | "BACK" | "EXTRA";
+  image_type: ImageType;
   url: string;
   storage_path: string | null;
   caption: string | null;
@@ -222,6 +253,7 @@ export interface ItemRow {
   market_prices: PriceRow[];
   purchase_items: PurchaseItemRow[];
   sale_items: SaleItemRow[];
+  investment_decisions: DecisionRow[];
 }
 
 export type CardInput = {
@@ -241,6 +273,10 @@ export type CardInput = {
   unlimited: boolean;
   shadowless: boolean;
   promo: boolean;
+  card_state: CardState;
+  graded_company: string | null;
+  graded_grade: number | null;
+  graded_certificate: string | null;
 };
 
 export type SealedInput = {
@@ -379,6 +415,9 @@ export function getExtraImages(item: ItemRow): ImageRow[] {
  */
 export function getCoverImage(item: ItemRow): ImageRow | null {
   return (
+    [...item.card_images]
+      .filter((image) => image.image_type === "COVER")
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] ??
     getExtraImages(item)[0] ??
     getFrontImage(item) ??
     getBackImage(item) ??
@@ -424,4 +463,47 @@ export function calculateRoi(profit: number, totalCost: number): number | null {
 export function formatCurrency(value: number | null | undefined, currency = "EUR"): string {
   if (value === null || value === undefined) return "—";
   return new Intl.NumberFormat("it-IT", { style: "currency", currency }).format(value);
+}
+
+
+/** Il tipo di prezzo che rappresenta il valore corrente di una carta gradata. */
+export function gradedPriceType(grade: number | null | undefined): PriceType | null {
+  if (grade === null || grade === undefined) return null;
+  const rounded = Math.round(Number(grade));
+  if (!Number.isFinite(rounded) || rounded < 1 || rounded > 10) return null;
+  return `PSA${rounded}` as PriceType;
+}
+
+export function isGradedCard(item: ItemRow): boolean {
+  const card = getCard(item);
+  if (!card) return false;
+  if (card.card_state === "GRADED") return true;
+  return getLatestGrading(item)?.actual_grade != null;
+}
+
+export function getCardGrade(item: ItemRow): number | null {
+  const card = getCard(item);
+  if (card?.graded_grade != null) return Number(card.graded_grade);
+  const actual = getLatestGrading(item)?.actual_grade;
+  return actual != null ? Number(actual) : null;
+}
+
+export function getCardGradingCompany(item: ItemRow): string | null {
+  const card = getCard(item);
+  if (card?.graded_company) return card.graded_company;
+  const grading = getLatestGrading(item);
+  return grading?.actual_company ?? grading?.grading_company ?? null;
+}
+
+export function getCardCertificate(item: ItemRow): string | null {
+  return getCard(item)?.graded_certificate ?? getLatestGrading(item)?.certificate_number ?? null;
+}
+
+export function getLatestDecision(item: ItemRow): DecisionRow | null {
+  if (!item.investment_decisions?.length) return null;
+  return (
+    [...item.investment_decisions].sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    )[0] ?? null
+  );
 }

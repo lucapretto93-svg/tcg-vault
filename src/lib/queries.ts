@@ -10,6 +10,7 @@ const ITEM_SELECT = `
   condition_assessments(*),
   grading_assessments(*),
   market_prices(*),
+  investment_decisions(*),
   purchase_items(id, purchase_id, item_id, allocated_cost, purchases(*)),
   sale_items(id, sale_id, item_id, allocated_revenue, sales(*))
 `;
@@ -29,6 +30,7 @@ function normalizeItem(row: Record<string, unknown>): ItemRow {
     condition_assessments: toArray(row["condition_assessments"] as never),
     grading_assessments: toArray(row["grading_assessments"] as never),
     market_prices: toArray(row["market_prices"] as never),
+    investment_decisions: toArray(row["investment_decisions"] as never),
     purchase_items: toArray(row["purchase_items"] as never).map((pi: Record<string, unknown>) => ({
       ...pi,
       purchases: Array.isArray(pi["purchases"]) ? pi["purchases"][0] : pi["purchases"],
