@@ -8,7 +8,8 @@ import { itemsQuery } from "@/lib/queries";
 import { buildPortfolio, currentValue, eur, itemSubtitle, itemTitle, pct, roi } from "@/lib/calc";
 import { exportCsv, exportJson } from "@/lib/exporters";
 import { ItemPhoto } from "@/components/ItemPhoto";
-import { getCoverImage } from "@/lib/types";
+import { DECISION_LABELS, INVESTMENT_DECISIONS, getLatestDecision, getCoverImage } from "@/lib/types";
+import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -50,6 +51,13 @@ function Metric({ label, value, hint }: { label: string; value: string; hint?: s
 function DashboardPage() {
   const { data: items } = useSuspenseQuery(itemsQuery());
   const p = buildPortfolio(items);
+  const groups = buildSetProgress(items);
+  const targets = setCompletionTargets(groups, 8);
+  const decisionCounts = INVESTMENT_DECISIONS.map((d) => ({
+    decision: d,
+    count: items.filter((i) => getLatestDecision(i)?.decision === d).length,
+  }));
+  const senzaStrategia = items.filter((i) => i.status !== "SOLD" && !getLatestDecision(i)).length;
 
   return (
     <AppShell
@@ -159,6 +167,59 @@ function DashboardPage() {
                   </Badge>
                 </div>
 
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Strategie attive</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {decisionCounts.map(({ decision, count }) => (
+              <div key={decision} className="flex items-center justify-between text-sm">
+                <span>{DECISION_LABELS[decision]}</span>
+                <Badge variant={count > 0 ? "default" : "outline"}>{count}</Badge>
+              </div>
+            ))}
+            <p className="pt-2 text-xs text-muted-foreground">
+              {senzaStrategia > 0
+                ? `${senzaStrategia} elementi senza strategia: da completare.`
+                : "Tutti gli elementi hanno una strategia."}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-base">Set quasi completi</CardTitle>
+              <Link to="/set-progress" className="text-xs text-primary hover:underline">
+                Vedi tutti
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {targets.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Nessun set vicino al completamento. Aggiungi set, numero e totale alle carte.
+              </p>
+            ) : (
+              targets.map((t) => (
+                <div
+                  key={`${t.group.key}-${t.number}`}
+                  className="flex items-center justify-between gap-3 text-sm"
+                >
+                  <span className="truncate">
+                    {t.group.setName} — #{t.number}
+                  </span>
+                  <Badge variant="secondary" className="shrink-0">
+                    {t.priority}
+                  </Badge>
+                </div>
               ))
             )}
           </CardContent>
