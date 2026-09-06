@@ -145,7 +145,29 @@ function DashboardPage() {
       </section>
 
       <section className="mb-5">
-        <CardtraderRadar />
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Carte da muovere</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Prima da gradare o da vendere, ordinate per guadagno atteso.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{moves.length}</Badge>
+              <Button asChild size="sm" className="min-h-11">
+                <Link to="/da-muovere">Vedi tutte</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <MoveList rows={moves.slice(0, 5)} />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mb-5">
+        <CardtraderRadar limit={5} />
       </section>
 
 
