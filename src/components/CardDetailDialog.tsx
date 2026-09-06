@@ -6,52 +6,17 @@ import { ItemPhoto } from "@/components/ItemPhoto";
 import { EbayListingAssistant } from "@/components/EbayListingAssistant";
 import { CardAssessmentDialog } from "@/components/CardAssessmentDialog";
 import { GradingResultDialog } from "@/components/GradingResultDialog";
+import { InvestmentDecisionSummary } from "@/components/InvestmentDecisionSummary";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { uploadImage } from "@/lib/mutations";
-import {
-  currentValue,
-  eur,
-  expectedGradedValue,
-  expectedProfit,
-  expectedUplift,
-  gradingCost,
-  itemSubtitle,
-  itemTitle,
-  latestCondition,
-  latestGrading,
-  latestPrice,
-  pct,
-  roi,
-  totalCost,
-} from "@/lib/calc";
-import {
-  getBackImage,
-  getExtraImages,
-  getFrontImage,
-  PRICE_TYPES,
-  type ItemRow,
-} from "@/lib/types";
+import { currentValue, eur, expectedGradedValue, expectedProfit, expectedUplift, gradingCost, itemSubtitle, itemTitle, latestCondition, latestGrading, latestPrice, pct, roi, totalCost } from "@/lib/calc";
+import { getBackImage, getExtraImages, getFrontImage, PRICE_TYPES, type ItemRow } from "@/lib/types";
 
 type ImageType = "FRONT" | "BACK" | "EXTRA";
-
-function Field({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <div className="mt-0.5 text-sm font-medium">{value || "—"}</div>
-    </div>
-  );
-}
+function Field({ label, value }: { label: string; value: ReactNode }) { return <div><p className="text-xs text-muted-foreground">{label}</p><div className="mt-0.5 text-sm font-medium">{value || "—"}</div></div>; }
 
 export function CardDetailDialog({ item, trigger }: { item: ItemRow; trigger: ReactNode }) {
   const queryClient = useQueryClient();
@@ -59,241 +24,21 @@ export function CardDetailDialog({ item, trigger }: { item: ItemRow; trigger: Re
   const card = item.cards[0];
   const condition = latestCondition(item);
   const grading = latestGrading(item);
-  const front = getFrontImage(item);
-  const back = getBackImage(item);
-  const extras = getExtraImages(item);
-
-  const upload = useMutation({
-    mutationFn: ({ file, type }: { file: File; type: ImageType }) =>
-      uploadImage(item.id, file, type),
-    onMutate: ({ type }) => setUploadType(type),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["items"] });
-      toast.success("Foto caricata");
-    },
-    onError: (error: Error) => toast.error(error.message),
-    onSettled: () => setUploadType(null),
-  });
-
-  const onFile = (type: ImageType) => (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Seleziona un file immagine");
-      return;
-    }
-    if (file.size > 12 * 1024 * 1024) {
-      toast.error("La foto non può superare 12 MB");
-      return;
-    }
-
-    upload.mutate({ file, type });
-  };
-
+  const front = getFrontImage(item); const back = getBackImage(item); const extras = getExtraImages(item);
+  const upload = useMutation({ mutationFn: ({ file, type }: { file: File; type: ImageType }) => uploadImage(item.id, file, type), onMutate: ({ type }) => setUploadType(type), onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["items"] }); toast.success("Foto caricata"); }, onError: (error: Error) => toast.error(error.message), onSettled: () => setUploadType(null) });
+  const onFile = (type: ImageType) => (event: ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; if (!file.type.startsWith("image/")) { toast.error("Seleziona un file immagine"); return; } if (file.size > 12 * 1024 * 1024) { toast.error("La foto non può superare 12 MB"); return; } upload.mutate({ file, type }); };
   if (!card) return null;
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>{itemTitle(item)}</DialogTitle>
-          <DialogDescription>{itemSubtitle(item)}</DialogDescription>
-        </DialogHeader>
-
-        <div className="flex flex-wrap gap-2">
-          <CardAssessmentDialog
-            item={item}
-            trigger={
-              <Button variant="outline">
-                <ClipboardCheck className="h-4 w-4" /> Nuova analisi e stima
-              </Button>
-            }
-          />
-          {grading ? (
-            <GradingResultDialog
-              grading={grading}
-              trigger={
-                <Button variant="secondary">
-                  {grading.actual_grade ? "Aggiorna voto effettivo" : "Registra voto effettivo"}
-                </Button>
-              }
-            />
-          ) : null}
-        </div>
-
-        <section className="grid gap-4 md:grid-cols-2">
-          {[
-            { type: "FRONT" as const, label: "Fronte", image: front },
-            { type: "BACK" as const, label: "Retro", image: back },
-          ].map(({ type, label, image }) => (
-            <div key={type} className="space-y-2">
-              <ItemPhoto
-                image={image}
-                alt={`${itemTitle(item)} ${label}`}
-                className="aspect-[63/88] w-full"
-              />
-              <label className="block">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  disabled={upload.isPending}
-                  onChange={onFile(type)}
-                />
-                <Button asChild type="button" variant="outline" className="w-full">
-                  <span>
-                    <Upload className="mr-2 h-4 w-4" />
-                    {uploadType === type
-                      ? "Caricamento…"
-                      : image
-                        ? `Sostituisci ${label.toLowerCase()}`
-                        : `Carica ${label.toLowerCase()}`}
-                  </span>
-                </Button>
-              </label>
-            </div>
-          ))}
-        </section>
-
-        <label className="block">
-          <Input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            disabled={upload.isPending}
-            onChange={onFile("EXTRA")}
-          />
-          <Button asChild type="button" variant="secondary">
-            <span>
-              <Upload className="mr-2 h-4 w-4" />
-              {uploadType === "EXTRA" ? "Caricamento…" : "Aggiungi foto extra"}
-            </span>
-          </Button>
-        </label>
-
-        {extras.length > 0 && (
-          <section className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-            {extras.map((image, index) => (
-              <ItemPhoto
-                key={image.id}
-                image={image}
-                alt={`${itemTitle(item)} extra ${index + 1}`}
-                className="aspect-square w-full"
-              />
-            ))}
-          </section>
-        )}
-
-        <section className="rounded-lg border border-border p-4">
-          <h3 className="mb-3 font-semibold">Identificazione</h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Field label="Pokémon" value={card.pokemon_name} />
-            <Field label="Nome carta" value={card.card_name} />
-            <Field label="Set" value={card.set_name} />
-            <Field
-              label="Numero"
-              value={card.card_number ? `${card.card_number}/${card.set_total ?? "?"}` : null}
-            />
-            <Field label="Anno" value={card.year} />
-            <Field label="Lingua" value={card.language} />
-            <Field label="Rarità" value={card.rarity} />
-            <Field label="Variante" value={card.variant} />
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {card.holo && <Badge>Holo</Badge>}
-            {card.reverse_holo && <Badge>Reverse holo</Badge>}
-            {card.first_edition && <Badge>1st Edition</Badge>}
-            {card.unlimited && <Badge variant="secondary">Unlimited</Badge>}
-            {card.shadowless && <Badge>Shadowless</Badge>}
-            {card.promo && <Badge>Promo</Badge>}
-          </div>
-        </section>
-
-        <section className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-lg border border-border p-4">
-            <h3 className="mb-3 font-semibold">Condizione</h3>
-            {condition ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Condizione" value={condition.overall_condition} />
-                <Field label="Centratura fronte" value={condition.centering_front} />
-                <Field label="Centratura retro" value={condition.centering_back} />
-                <Field label="Bordi" value={condition.edges} />
-                <Field label="Angoli" value={condition.corners} />
-                <Field label="Whitening" value={condition.whitening} />
-                <Field label="Graffi" value={condition.scratches} />
-                <Field label="Pieghe" value={condition.creases} />
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Nessuna valutazione registrata.</p>
-            )}
-          </div>
-
-          <div className="rounded-lg border border-border p-4">
-            <h3 className="mb-3 font-semibold">Grading</h3>
-            {grading ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Società" value={grading.grading_company} />
-                <Field label="Voto probabile" value={grading.probable_grade} />
-                <Field
-                  label="Range"
-                  value={`${grading.min_grade ?? "—"}–${grading.max_grade ?? "—"}`}
-                />
-                <Field
-                  label="Confidenza"
-                  value={grading.confidence ? `${grading.confidence}%` : null}
-                />
-                <Field label="Raccomandazione" value={grading.recommendation} />
-                <Field label="Costo grading" value={eur(gradingCost(item))} />
-                <Field label="Voto stimato" value={grading.probable_grade} />
-                <Field label="Voto effettivo" value={grading.actual_grade} />
-                <Field
-                  label="Scarto stima"
-                  value={
-                    grading.actual_grade !== null && grading.probable_grade !== null
-                      ? `${Number(grading.actual_grade) - Number(grading.probable_grade) >= 0 ? "+" : ""}${Number(grading.actual_grade) - Number(grading.probable_grade)}`
-                      : null
-                  }
-                />
-                <Field label="Certificato" value={grading.certificate_number} />
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Nessuna valutazione registrata.</p>
-            )}
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-border p-4">
-          <h3 className="mb-3 font-semibold">Valori e rendimento</h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Field label="Costo totale" value={eur(totalCost(item))} />
-            <Field label="Valore raw" value={eur(currentValue(item))} />
-            <Field label="ROI attuale" value={pct(roi(item))} />
-            <Field label="Expected graded" value={eur(expectedGradedValue(item))} />
-            <Field label="Expected uplift" value={eur(expectedUplift(item))} />
-            <Field label="Profitto grading atteso" value={eur(expectedProfit(item))} />
-          </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            {PRICE_TYPES.filter((type) => type !== "SEALED").map((type) => (
-              <div key={type} className="rounded-md bg-muted/50 p-2 text-center">
-                <p className="text-xs text-muted-foreground">{type}</p>
-                <p className="text-sm font-semibold">{eur(latestPrice(item, type)?.value)}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {item.notes && (
-          <section className="rounded-lg border border-border p-4">
-            <h3 className="mb-2 font-semibold">Note</h3>
-            <p className="whitespace-pre-wrap text-sm text-muted-foreground">{item.notes}</p>
-          </section>
-        )}
-
-        <EbayListingAssistant item={item} />
-      </DialogContent>
-    </Dialog>
-  );
+  return <Dialog><DialogTrigger asChild>{trigger}</DialogTrigger><DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>{itemTitle(item)}</DialogTitle><DialogDescription>{itemSubtitle(item)}</DialogDescription></DialogHeader>
+    <div className="flex flex-wrap gap-2"><CardAssessmentDialog item={item} trigger={<Button variant="outline"><ClipboardCheck className="h-4 w-4" /> Nuova analisi e stima</Button>} />{grading ? <GradingResultDialog grading={grading} trigger={<Button variant="secondary">{grading.actual_grade ? "Aggiorna voto effettivo" : "Registra voto effettivo"}</Button>} /> : null}</div>
+    <section className="grid gap-4 md:grid-cols-2">{[{ type:"FRONT" as const,label:"Fronte",image:front},{type:"BACK" as const,label:"Retro",image:back}].map(({type,label,image})=><div key={type} className="space-y-2"><ItemPhoto image={image} alt={`${itemTitle(item)} ${label}`} className="aspect-[63/88] w-full"/><label className="block"><Input type="file" accept="image/*" className="hidden" disabled={upload.isPending} onChange={onFile(type)}/><Button asChild type="button" variant="outline" className="w-full"><span><Upload className="mr-2 h-4 w-4" />{uploadType===type?"Caricamento…":image?`Sostituisci ${label.toLowerCase()}`:`Carica ${label.toLowerCase()}`}</span></Button></label></div>)}</section>
+    <label className="block"><Input type="file" accept="image/*" className="hidden" disabled={upload.isPending} onChange={onFile("EXTRA")}/><Button asChild type="button" variant="secondary"><span><Upload className="mr-2 h-4 w-4" />{uploadType==="EXTRA"?"Caricamento…":"Aggiungi foto extra"}</span></Button></label>
+    {extras.length>0&&<section className="grid grid-cols-3 gap-2 sm:grid-cols-5">{extras.map((image,index)=><ItemPhoto key={image.id} image={image} alt={`${itemTitle(item)} extra ${index+1}`} className="aspect-square w-full"/>)}</section>}
+    <section className="rounded-lg border border-border p-4"><h3 className="mb-3 font-semibold">Identificazione</h3><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Field label="Pokémon" value={card.pokemon_name}/><Field label="Nome carta" value={card.card_name}/><Field label="Set" value={card.set_name}/><Field label="Numero" value={card.card_number?`${card.card_number}/${card.set_total??"?"}`:null}/><Field label="Anno" value={card.year}/><Field label="Lingua" value={card.language}/><Field label="Rarità" value={card.rarity}/><Field label="Variante" value={card.variant}/></div><div className="mt-3 flex flex-wrap gap-2">{card.holo&&<Badge>Holo</Badge>}{card.reverse_holo&&<Badge>Reverse holo</Badge>}{card.first_edition&&<Badge>1st Edition</Badge>}{card.unlimited&&<Badge variant="secondary">Unlimited</Badge>}{card.shadowless&&<Badge>Shadowless</Badge>}{card.promo&&<Badge>Promo</Badge>}{card.card_state==="GRADED"&&<Badge>{card.graded_company} {card.graded_grade}</Badge>}</div></section>
+    <InvestmentDecisionSummary item={item}/>
+    <section className="grid gap-4 lg:grid-cols-2"><div className="rounded-lg border border-border p-4"><h3 className="mb-3 font-semibold">Condizione</h3>{condition?<div className="grid gap-3 sm:grid-cols-2"><Field label="Condizione" value={condition.overall_condition}/><Field label="Centratura fronte" value={condition.centering_front}/><Field label="Centratura retro" value={condition.centering_back}/><Field label="Bordi" value={condition.edges}/><Field label="Angoli" value={condition.corners}/><Field label="Whitening" value={condition.whitening}/><Field label="Graffi" value={condition.scratches}/><Field label="Pieghe" value={condition.creases}/></div>:<p className="text-sm text-muted-foreground">Nessuna valutazione registrata.</p>}</div>
+    <div className="rounded-lg border border-border p-4"><h3 className="mb-3 font-semibold">Grading</h3>{grading?<div className="grid gap-3 sm:grid-cols-2"><Field label="Società" value={grading.grading_company}/><Field label="Voto probabile" value={grading.probable_grade}/><Field label="Range" value={`${grading.min_grade??"—"}–${grading.max_grade??"—"}`}/><Field label="Confidenza" value={grading.confidence?`${grading.confidence}%`:null}/><Field label="Raccomandazione" value={grading.recommendation}/><Field label="Costo grading" value={eur(gradingCost(item))}/><Field label="Voto effettivo" value={grading.actual_grade}/><Field label="Certificato" value={grading.certificate_number}/></div>:<p className="text-sm text-muted-foreground">Nessuna valutazione registrata.</p>}</div></section>
+    <section className="rounded-lg border border-border p-4"><h3 className="mb-3 font-semibold">Valori e rendimento</h3><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Field label="Costo totale" value={totalCost(item)>0?eur(totalCost(item)):"Da inserire"}/><Field label={card.card_state==="GRADED"?`Valore ${card.graded_company??"slab"} ${card.graded_grade??""}`:"Valore raw"} value={currentValue(item)>0?eur(currentValue(item)):"Da aggiornare"}/><Field label="ROI attuale" value={pct(roi(item))}/><Field label="Expected graded" value={eur(expectedGradedValue(item))}/><Field label="Expected uplift" value={eur(expectedUplift(item))}/><Field label="Profitto grading atteso" value={eur(expectedProfit(item))}/></div><div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">{PRICE_TYPES.filter(type=>type!=="SEALED").map(type=><div key={type} className="rounded-md bg-muted/50 p-2 text-center"><p className="text-xs text-muted-foreground">{type}</p><p className="text-sm font-semibold">{eur(latestPrice(item,type)?.value)}</p></div>)}</div></section>
+    {item.notes&&<section className="rounded-lg border border-border p-4"><h3 className="mb-2 font-semibold">Note</h3><p className="whitespace-pre-wrap text-sm text-muted-foreground">{item.notes}</p></section>}
+    <EbayListingAssistant item={item}/>
+  </DialogContent></Dialog>;
 }
