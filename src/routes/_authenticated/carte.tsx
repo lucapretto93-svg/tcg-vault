@@ -53,6 +53,10 @@ import {
 const money = (n: number) => (n > 0 ? eur(n) : "Da completare");
 const purchaseCost = (item: ItemRow) =>
   item.purchase_items.length > 0 ? eur(totalCost(item)) : "Da completare";
+const roiValue = (item: ItemRow) => {
+  if (item.purchase_items.length > 0 && totalCost(item) === 0) return "N/D — costo 0";
+  return roi(item) == null ? "Da completare" : pct(roi(item));
+};
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/carte")({
@@ -226,11 +230,11 @@ function CartePage() {
                   <TableCell className="text-right">{purchaseCost(i)}</TableCell>
                   <TableCell className="text-right">{money(currentValue(i))}</TableCell>
                   <TableCell className="text-right">
-                    {totalCost(i) > 0 && currentValue(i) > 0
+                    {i.purchase_items.length > 0 && currentValue(i) > 0
                       ? eur(currentValue(i) - totalCost(i))
                       : "Da completare"}
                   </TableCell>
-                  <TableCell className="text-right">{roi(i) == null ? "Da completare" : pct(roi(i))}</TableCell>
+                  <TableCell className="text-right">{roiValue(i)}</TableCell>
                   <TableCell>
                     {getLatestDecision(i) ? (
                       <Badge>{DECISION_LABELS[getLatestDecision(i)!.decision]}</Badge>
@@ -358,7 +362,11 @@ function CartePage() {
                             (r ?? 0) >= 0 ? "text-emerald-400" : "text-destructive",
                           )}
                         >
-                          {r == null ? "Da completare" : pct(r)}
+                          {i.purchase_items.length > 0 && totalCost(i) === 0
+                            ? "N/D — costo 0"
+                            : r == null
+                              ? "Da completare"
+                              : pct(r)}
                         </p>
                       </div>
                     </div>
