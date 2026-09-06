@@ -32,7 +32,9 @@ export function itemTitle(item: ItemRow): string {
   if (item.item_type === "CARD") {
     const c = item.cards[0];
     if (!c) return "Carta senza nome";
-    return [c.pokemon_name, c.card_name].filter(Boolean).join(" — ") || "Carta senza nome";
+    const parts = [c.pokemon_name?.trim(), c.card_name?.trim()].filter(Boolean) as string[];
+    const unique = parts.filter((p, i) => parts.findIndex((x) => x.toLowerCase() === p.toLowerCase()) === i);
+    return unique.join(" — ") || "Carta senza nome";
   }
   const s = item.sealed_products[0];
   const name = s?.name?.trim();
