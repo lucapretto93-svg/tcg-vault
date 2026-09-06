@@ -20,7 +20,15 @@ import {
   getCurrentRawValue,
   getPurchaseCost,
   LANGUAGES,
+  GRADING_COMPANIES,
+  getCardCertificate,
+  getCardGrade,
+  getCardGradingCompany,
+  getLatestPrice,
+  gradedPriceType,
+  isGradedCard,
   type CardInput,
+  type CardState,
   type ItemRow,
 } from "@/lib/types";
 
@@ -44,6 +52,10 @@ type Form = {
   notes: string;
   rawValue: string;
   purchasePrice: string;
+  card_state: CardState;
+  graded_company: string;
+  graded_grade: string;
+  graded_certificate: string;
 };
 
 function emptyForm(): Form {
@@ -67,6 +79,10 @@ function emptyForm(): Form {
     notes: "",
     rawValue: "",
     purchasePrice: "",
+    card_state: "RAW",
+    graded_company: "PSA",
+    graded_grade: "",
+    graded_certificate: "",
   };
 }
 
@@ -91,7 +107,15 @@ function fromItem(item: ItemRow): Form {
     shadowless: !!c?.shadowless,
     promo: !!c?.promo,
     notes: item.notes ?? "",
-    rawValue: getCurrentRawValue(item)?.toString() ?? "",
+    card_state: isGradedCard(item) ? "GRADED" : "RAW",
+    graded_company: getCardGradingCompany(item) ?? "PSA",
+    graded_grade: getCardGrade(item)?.toString() ?? "",
+    graded_certificate: getCardCertificate(item) ?? "",
+    rawValue: (() => {
+      if (!isGradedCard(item)) return getCurrentRawValue(item)?.toString() ?? "";
+      const type = gradedPriceType(getCardGrade(item));
+      return type ? (getLatestPrice(item, type)?.value?.toString() ?? "") : "";
+    })(),
     purchasePrice: getPurchaseCost(item)?.toString() ?? "",
   };
 }
@@ -159,9 +183,18 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
         unlimited: form.unlimited,
         shadowless: form.shadowless,
         promo: form.promo,
+        card_state: form.card_state,
+        graded_company: form.card_state === "GRADED" ? form.graded_company || null : null,
+        graded_grade:
+          form.card_state === "GRADED" && form.graded_grade ? Number(form.graded_grade) : null,
+        graded_certificate:
+          form.card_state === "GRADED" ? form.graded_certificate.trim() || null : null,
       };
+      const valueType =
+        (form.card_state === "GRADED" ? gradedPriceType(Number(form.graded_grade)) : "RAW") ??
+        "RAW";
       if (item) {
-        await updateItemWithRawValue(item.id, card, form.notes, rawValue);
+        await updateItemWithRawValue(item.id, card, form.notes, rawValue, valueType);
         return;
       }
       await createItemWithPurchase({
@@ -169,6 +202,7 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
         card,
         notes: form.notes,
         rawValue,
+        valueType,
         purchase: purchasePrice
           ? {
               purchase_date: new Date().toISOString().slice(0, 10),
@@ -260,7 +294,58 @@ export function CardFormDialog({ item, trigger }: { item?: ItemRow; trigger: Rea
             <Input value={form.variant} onChange={(e) => set("variant", e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label>Valore raw (€)</Label>
+            <Label>Stato carta</Label>
+            <select
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={form.card_state}
+              onChange={(e) => set("card_state", e.target.value as CardState)}
+            >
+              <option value="RAW">Raw</option>
+              <option value="GRADED">Gradata (slab)</option>
+            </select>
+          </div>
+          {form.card_state === "GRADED" ? (
+            <>
+              <div className="space-y-1.5">
+                <Label>Società grading</Label>
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={form.graded_company}
+                  onChange={(e) => set("graded_company", e.target.value)}
+                >
+                  {GRADING_COMPANIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Voto</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="10"
+                  step="0.5"
+                  value={form.graded_grade}
+                  onChange={(e) => set("graded_grade", e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Certificato</Label>
+                <Input
+                  value={form.graded_certificate}
+                  onChange={(e) => set("graded_certificate", e.target.value)}
+                />
+              </div>
+            </>
+          ) : null}
+          <div className="space-y-1.5">
+            <Label>
+              {form.card_state === "GRADED"
+                ? `Valore slab ${form.graded_grade ? `grade ${form.graded_grade}` : ""} (€)`
+                : "Valore raw (€)"}
+            </Label>
             <Input
               type="number"
               min="0"
