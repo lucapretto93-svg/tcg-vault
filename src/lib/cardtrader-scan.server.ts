@@ -118,7 +118,20 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
         groups.set(key, [...(groups.get(key) ?? []), product]);
       }
 
-      for (const group of groups.values()) {
+      for (const rawGroup of groups.values()) {
+        if (rawGroup.length < MIN_COMPARABLES) continue;
+        const rawPrices = rawGroup.map(productPrice).filter((p) => p > 0);
+        if (rawPrices.length < MIN_COMPARABLES) continue;
+        // Escludi gli outlier assurdi (es. un listing a 10.000 €): prezzi oltre
+        // 5 volte la mediana del gruppo non entrano né nel benchmark né nei confronti.
+        const groupMedian = median(rawPrices);
+        const group =
+          groupMedian && groupMedian > 0
+            ? rawGroup.filter((p) => {
+                const pr = productPrice(p);
+                return pr <= 0 || pr <= groupMedian * 5;
+              })
+            : rawGroup;
         if (group.length < MIN_COMPARABLES) continue;
         const prices = group.map(productPrice).filter((p) => p > 0);
         if (prices.length < MIN_COMPARABLES) continue;
