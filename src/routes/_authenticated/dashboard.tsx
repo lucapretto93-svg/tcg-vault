@@ -13,6 +13,7 @@ import { DECISION_LABELS, INVESTMENT_DECISIONS, getLatestDecision, getCoverImage
 import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
 import { PortfolioChart } from "@/components/PortfolioChart";
+import { CardtraderRadar } from "@/components/CardtraderRadar";
 import {
   buildAlerts,
   incompleteItems,
