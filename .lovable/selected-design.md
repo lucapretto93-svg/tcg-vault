@@ -1,0 +1,1 @@
+Elite Vault Dark selected: premium dark graphite surfaces, Pokémon-red primary accents, cyan scanner details, Outfit typography, compact mobile header, and fixed five-item iPhone dock with elevated central action.

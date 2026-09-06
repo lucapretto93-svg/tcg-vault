@@ -14,6 +14,7 @@ import {
   Settings,
   Menu,
   LogOut,
+  MoreHorizontal,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +37,13 @@ const NAV = [
   { to: "/grading", label: "Grading", icon: Award },
   { to: "/prezzi", label: "Storico Prezzi", icon: LineChart },
   { to: "/impostazioni", label: "Impostazioni", icon: Settings },
+] as const;
+
+const MOBILE_NAV = [
+  { to: "/dashboard", label: "Home", icon: LayoutDashboard },
+  { to: "/collezione", label: "Collezione", icon: LibraryBig },
+  { to: "/da-muovere", label: "Muovi", icon: Rocket, featured: true },
+  { to: "/occasioni", label: "Occasioni", icon: Radar },
 ] as const;
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
@@ -74,6 +82,41 @@ function Brand() {
   );
 }
 
+function MobileDock({ onMore }: { onMore: () => void }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  return (
+    <nav className="mobile-dock lg:hidden" aria-label="Navigazione rapida">
+      <div className="mobile-dock-inner">
+        {MOBILE_NAV.map(({ to, label, icon: Icon, featured }) => {
+          const active = pathname === to || pathname.startsWith(`${to}/`);
+          return (
+            <Link
+              key={to}
+              to={to}
+              aria-current={active ? "page" : undefined}
+              className={cn("mobile-dock-item", active && "is-active", featured && "is-featured")}
+            >
+              <span className="mobile-dock-icon"><Icon /></span>
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+        <Button
+          type="button"
+          variant="ghost"
+          className="mobile-dock-item h-auto rounded-none px-0 py-0"
+          onClick={onMore}
+          aria-label="Apri tutte le sezioni"
+        >
+          <span className="mobile-dock-icon"><MoreHorizontal /></span>
+          <span>Altro</span>
+        </Button>
+      </div>
+    </nav>
+  );
+}
+
 export function AppShell({
   title,
   subtitle,
@@ -109,13 +152,13 @@ export function AppShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="app-header pokedex-header sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur md:px-6">
+        <header className="app-header pokedex-header sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur md:px-6">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
-                className="min-h-11 min-w-11 lg:hidden"
+                className="hidden min-h-11 min-w-11 lg:flex"
                 aria-label="Apri navigazione"
               >
                 <Menu className="h-4 w-4" />
@@ -138,9 +181,9 @@ export function AppShell({
             </SheetContent>
           </Sheet>
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="hidden sm:block lg:hidden">
+              <span className="block lg:hidden">
                 <VaultLogo compact />
               </span>
               <h1 className="poke-title truncate text-lg font-extrabold tracking-tight md:text-xl">{title}</h1>
@@ -151,6 +194,7 @@ export function AppShell({
         </header>
 
         <main className="app-content poke-main flex-1 p-4 md:p-6">{children}</main>
+        <MobileDock onMore={() => setOpen(true)} />
       </div>
     </div>
   );
