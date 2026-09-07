@@ -1,5 +1,5 @@
 import { ItemPhoto } from "@/components/ItemPhoto";
-import { getCoverImage, isGradedCard, itemIsSlab, type ItemRow } from "@/lib/types";
+import { getCoverImage, isGradedCard, type ItemRow } from "@/lib/types";
 import { itemTitle } from "@/lib/calc";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +17,7 @@ export function ItemThumb({
   className?: string;
   alt?: string;
 }) {
-  const graded = item.item_type === "CARD" && (itemIsSlab(item) || isGradedCard(item));
+  const graded = item.item_type === "CARD" && isGradedCard(item);
   return (
     <ItemPhoto
       image={getCoverImage(item)}
