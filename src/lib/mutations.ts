@@ -404,3 +404,16 @@ export async function setItemBucket(itemId: string, bucket: "COLLECTION" | "STOC
   const { error } = await supabase.from("items").update({ bucket }).eq("id", itemId);
   if (error) throw new Error(error.message);
 }
+
+/** Stato persistente del quality check: pending finché non c'è evidenza reale. */
+export async function setQualityCheck(itemId: string, status: "pending" | "completed", notes?: string) {
+  const { error } = await supabase
+    .from("items")
+    .update({
+      qc_status: status,
+      qc_completed_at: status === "completed" ? new Date().toISOString() : null,
+      ...(notes === undefined ? {} : { qc_notes: notes }),
+    })
+    .eq("id", itemId);
+  if (error) throw new Error(error.message);
+}

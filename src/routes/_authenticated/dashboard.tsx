@@ -17,6 +17,18 @@ import { CardtraderRadar } from "@/components/CardtraderRadar";
 import { MoveList } from "@/components/MoveList";
 import { buildMoves } from "@/lib/actions";
 import {
+  buildBuyPriority,
+  buildGradingPriority,
+  buildQualityCheck,
+  buildSellPriority,
+} from "@/lib/priorities";
+import {
+  BuyPriorityList,
+  GradingPriorityList,
+  QualityCheckList,
+  SellPriorityList,
+} from "@/components/PriorityLists";
+import {
   buildAlerts,
   incompleteItems,
   movers,
@@ -79,6 +91,10 @@ function DashboardPage() {
   const mv = useMemo(() => movers(items), [items]);
   const alerts = useMemo(() => buildAlerts(items), [items]);
   const moves = useMemo(() => buildMoves(items), [items]);
+  const qcRows = useMemo(() => buildQualityCheck(items), [items]);
+  const gradingRows = useMemo(() => buildGradingPriority(items), [items]);
+  const sellRows = useMemo(() => buildSellPriority(items), [items]);
+  const buyRows = useMemo(() => buildBuyPriority(items), [items]);
   const incomplete = useMemo(() => incompleteItems(items), [items]);
   const stale = useMemo(
     () =>
@@ -169,13 +185,75 @@ function DashboardPage() {
         </Card>
       </section>
 
+      <section className="mb-5 grid gap-4 [&>*]:min-w-0 xl:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità quality check</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Foto e analisi necessarie per una stima affidabile.
+              </p>
+            </div>
+            <Badge variant="secondary">{qcRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <QualityCheckList rows={qcRows} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità grading</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Solo carte con quality check completato, ordinate per convenienza.
+              </p>
+            </div>
+            <Badge variant="secondary">{gradingRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <GradingPriorityList rows={gradingRows} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità vendita</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Doppioni, stock e target raggiunti, con quality check completato.
+              </p>
+            </div>
+            <Badge variant="secondary">{sellRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <SellPriorityList rows={sellRows} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità acquisto / set</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Carte mancanti per chiudere i set che stai già collezionando.
+              </p>
+            </div>
+            <Badge variant="secondary">{buyRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <BuyPriorityList rows={buyRows} />
+          </CardContent>
+        </Card>
+      </section>
+
       <section className="mb-5">
         <CardtraderRadar limit={5} />
       </section>
 
 
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 [&>*]:min-w-0 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Carte" value={String(p.cardCount)} hint="in collezione" />
         <Metric label="Sealed" value={String(p.sealedCount)} hint="pezzi totali" />
         <Metric label="Capitale investito" value={eur(p.invested)} />
@@ -187,7 +265,7 @@ function DashboardPage() {
       </div>
 
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -242,7 +320,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Top gainers</CardTitle>
@@ -255,7 +333,7 @@ function DashboardPage() {
             ) : (
               mv.gainers.map(({ item, change }) => (
                 <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate">{itemTitle(item)}</span>
+                  <span className="min-w-0 truncate">{itemTitle(item)}</span>
                   <Badge>{`+${eur(change.abs)}`}</Badge>
                 </div>
               ))
@@ -273,7 +351,7 @@ function DashboardPage() {
             ) : (
               mv.losers.map(({ item, change }) => (
                 <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate">{itemTitle(item)}</span>
+                  <span className="min-w-0 truncate">{itemTitle(item)}</span>
                   <Badge variant="destructive">{eur(change.abs)}</Badge>
                 </div>
               ))
@@ -306,7 +384,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Dati da completare</CardTitle>
@@ -317,7 +395,7 @@ function DashboardPage() {
             ) : (
               incomplete.slice(0, 8).map((row) => (
                 <div key={row.item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate">{itemTitle(row.item)}</span>
+                  <span className="min-w-0 truncate">{itemTitle(row.item)}</span>
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {row.missing.join(", ")}
                   </span>
@@ -366,7 +444,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Top per valore</CardTitle>
@@ -427,7 +505,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Strategie attive</CardTitle>
@@ -467,7 +545,7 @@ function DashboardPage() {
                   key={`${t.group.key}-${t.number}`}
                   className="flex items-center justify-between gap-3 text-sm"
                 >
-                  <span className="truncate">
+                  <span className="min-w-0 truncate">
                     {t.group.setName} — #{t.number}
                   </span>
                   <Badge variant="secondary" className="shrink-0">

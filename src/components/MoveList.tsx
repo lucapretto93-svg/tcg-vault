@@ -14,7 +14,7 @@ export function MoveItem({ row }: { row: MoveRow }) {
       <ItemPhoto
         image={getCoverImage(row.item)}
         alt={itemTitle(row.item)}
-        className="h-20 w-14 shrink-0 bg-muted/30 object-contain"
+        className="h-[68px] w-12 shrink-0 bg-muted/30 object-contain"
       />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -28,8 +28,8 @@ export function MoveItem({ row }: { row: MoveRow }) {
         <p className="truncate text-xs text-muted-foreground">{itemSubtitle(row.item)}</p>
         <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{row.reason}</p>
       </div>
-      <div className="shrink-0 text-right">
-        <p className="text-xs text-muted-foreground">{grade ? "Uplift atteso" : "Profitto"}</p>
+      <div className="w-20 shrink-0 text-right">
+        <p className="text-[11px] text-muted-foreground">{grade ? "Uplift" : "Profitto"}</p>
         <p className={`text-sm font-bold ${row.gain >= 0 ? "text-emerald-400" : "text-destructive"}`}>
           {row.gain >= 0 ? "+" : ""}
           {eur(row.gain)}
@@ -55,7 +55,7 @@ export function MoveList({ rows }: { rows: MoveRow[] }) {
     );
   }
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid gap-3 [&>*]:min-w-0 lg:grid-cols-2">
       {rows.map((row) => (
         <MoveItem key={`${row.item.id}-${row.kind}`} row={row} />
       ))}

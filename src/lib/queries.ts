@@ -4,6 +4,7 @@ import type { ItemRow, PurchaseRow, SaleRow } from "./types";
 
 const ITEM_SELECT = `
   id, user_id, item_type, status, bucket, is_demo, notes, created_at, updated_at,
+  qc_status, qc_completed_at, qc_notes,
   cards(*),
   sealed_products(*),
   card_images(*),
