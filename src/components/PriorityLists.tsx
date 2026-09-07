@@ -1,15 +1,24 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Award, Check, ShoppingCart, Tag, Camera } from "lucide-react";
+import { Award, Check, Languages, ShoppingCart, Tag, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ItemPhoto } from "@/components/ItemPhoto";
+import { ItemThumb } from "@/components/ItemThumb";
 import { eur, itemSubtitle, itemTitle } from "@/lib/calc";
-import { getCoverImage } from "@/lib/types";
 import { setQualityCheck } from "@/lib/mutations";
 import type { BuyRowView, GradingRowView, PriorityRow, SellRowView } from "@/lib/priorities";
+import type { SetLanguageRow } from "@/lib/setLanguage";
+
+export type ToneKey = "qc" | "grade" | "sell" | "buy";
+
+export const TONE_CLASS: Record<ToneKey, string> = {
+  qc: "tone-qc",
+  grade: "tone-grade",
+  sell: "tone-sell",
+  buy: "tone-buy",
+};
 
 function Row({
   row,
@@ -19,22 +28,18 @@ function Row({
   action,
 }: {
   row: PriorityRow;
-  tone: "qc" | "grade" | "sell";
+  tone: ToneKey;
   icon: React.ReactNode;
   extra?: React.ReactNode;
   action?: React.ReactNode;
 }) {
   const positive = (row.amount ?? 0) >= 0;
   return (
-    <article className="flex items-start gap-3 rounded-xl border border-border bg-card/60 p-3">
-      <ItemPhoto
-        image={getCoverImage(row.item)}
-        alt={itemTitle(row.item)}
-        className="h-[68px] w-12 shrink-0 bg-muted/30 object-contain"
-      />
+    <article className={`tone-row ${TONE_CLASS[tone]} flex items-start gap-3 rounded-xl border bg-card/60 p-3`}>
+      <ItemThumb item={row.item} className="h-[68px] w-12 shrink-0 bg-muted/30 object-contain" />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant={tone === "sell" ? "default" : "secondary"} className="gap-1">
+          <Badge variant="outline" className="tone-badge gap-1">
             {icon}
             {tone === "qc" ? "Quality check" : tone === "grade" ? "Grading" : "Vendita"}
           </Badge>
@@ -51,7 +56,7 @@ function Row({
             <p className="text-[11px] text-muted-foreground">{row.amountLabel}</p>
             <p
               className={`text-sm font-bold ${
-                tone === "qc" ? "" : positive ? "text-emerald-400" : "text-destructive"
+                tone === "qc" ? "tone-accent" : positive ? "tone-accent" : "text-destructive"
               }`}
             >
               {tone === "qc" ? eur(row.amount) : `${positive ? "+" : ""}${eur(row.amount)}`}
@@ -134,8 +139,8 @@ export function GradingPriorityList({ rows }: { rows: GradingRowView[] }) {
           icon={<Award className="h-3 w-3" />}
           extra={
             <>
-              <Badge variant="outline">Priorità {index + 1}</Badge>
-              {row.roi != null ? <Badge variant="outline">ROI {row.roi.toFixed(0)}%</Badge> : null}
+              <Badge variant="outline" className="tone-badge">Priorità {index + 1}</Badge>
+              {row.roi != null ? <Badge variant="outline" className="tone-badge">ROI {row.roi.toFixed(0)}%</Badge> : null}
             </>
           }
           action={
@@ -165,9 +170,11 @@ export function SellPriorityList({ rows }: { rows: SellRowView[] }) {
           icon={<Tag className="h-3 w-3" />}
           extra={
             <>
-              <Badge variant="outline">Priorità {index + 1}</Badge>
+              <Badge variant="outline" className="tone-badge">Priorità {index + 1}</Badge>
               {row.suggestedPrice ? (
-                <Badge variant="outline">Prezzo suggerito {eur(row.suggestedPrice)}</Badge>
+                <Badge variant="outline" className="tone-badge">
+                  Prezzo suggerito {eur(row.suggestedPrice)}
+                </Badge>
               ) : null}
             </>
           }
@@ -189,13 +196,23 @@ export function BuyPriorityList({ rows }: { rows: BuyRowView[] }) {
     );
   }
   return (
-    <div className="grid gap-2">
+    <div className="tone-buy grid gap-2">
       {rows.map((row, index) => (
         <div
           key={row.key}
-          className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/60 p-3"
+          className="tone-row tone-buy flex items-center justify-between gap-3 rounded-xl border bg-card/60 p-3"
         >
           <div className="min-w-0">
+            <div className="mb-1 flex flex-wrap gap-1.5">
+              <Badge variant="outline" className="tone-badge">
+                {row.kind === "TRADE" ? "Trade/upgrade lingua" : "Mancante"}
+              </Badge>
+              {row.kind === "TRADE" ? (
+                <Badge variant="outline" className="tone-badge">
+                  già {row.ownedLanguages.join("/")} → {row.targetLanguage}
+                </Badge>
+              ) : null}
+            </div>
             <p className="truncate text-sm font-semibold">
               {row.group.setName} — #{row.number}
             </p>
@@ -205,7 +222,7 @@ export function BuyPriorityList({ rows }: { rows: BuyRowView[] }) {
             </p>
           </div>
           <div className="w-20 shrink-0 text-right">
-            <Badge variant="secondary">Priorità {index + 1}</Badge>
+            <Badge variant="outline" className="tone-badge">Priorità {index + 1}</Badge>
             <p className="mt-1 text-xs text-muted-foreground">
               {row.targetPrice != null ? `Target ${eur(row.targetPrice)}` : "Target n/d"}
             </p>
@@ -217,6 +234,61 @@ export function BuyPriorityList({ rows }: { rows: BuyRowView[] }) {
           <ShoppingCart className="mr-1 h-3 w-3" /> Cerca offerte
         </Link>
       </Button>
+    </div>
+  );
+}
+
+const LANG_STATUS_TONE: Record<string, string> = {
+  MONO_IT: "tone-buy",
+  MONO_OTHER: "tone-qc",
+  MISTO: "tone-grade",
+  DA_VERIFICARE: "tone-sell",
+};
+
+export function SetLanguageList({ rows }: { rows: SetLanguageRow[] }) {
+  if (rows.length === 0) {
+    return (
+      <Empty text="Nessun set analizzabile: servono set e lingua sulle carte per valutare la coerenza." />
+    );
+  }
+  return (
+    <div className="grid gap-3 [&>*]:min-w-0 lg:grid-cols-2">
+      {rows.map((row) => (
+        <div
+          key={row.key}
+          className={`tone-row ${LANG_STATUS_TONE[row.status] ?? "tone-qc"} rounded-xl border bg-card/60 p-3`}
+        >
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="outline" className="tone-badge">
+              <Languages className="mr-1 h-3 w-3" />
+              {row.statusLabel}
+            </Badge>
+            {row.targetLanguage ? (
+              <Badge variant="outline" className="tone-badge">
+                Obiettivo {row.targetLanguage}
+              </Badge>
+            ) : null}
+          </div>
+          <p className="mt-1 truncate text-sm font-semibold">{row.setName}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {row.counts.map((c) => `${c.language} ${c.count}`).join(" / ")}
+            {row.unknownLanguage > 0 ? ` / lingua n/d ${row.unknownLanguage}` : ""}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {row.toReplace > 0
+              ? `${row.toReplace} da sostituire per il mono-lingua`
+              : "Nessuna sostituzione necessaria"}
+          </p>
+          {row.offLanguageItems.length > 0 ? (
+            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+              Fuori lingua: {row.offLanguageItems.map((i) => itemTitle(i)).join(", ")}
+            </p>
+          ) : null}
+          {row.suggestion ? (
+            <p className="tone-accent mt-1 text-xs font-medium">{row.suggestion}</p>
+          ) : null}
+        </div>
+      ))}
     </div>
   );
 }

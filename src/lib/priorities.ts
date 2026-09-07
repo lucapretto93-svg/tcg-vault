@@ -9,6 +9,8 @@ import {
 } from "./calc";
 import { latestValuePrice, priceChange, priceFreshness } from "./analytics";
 import { buildSetProgress, completionCost, type SetGroup } from "./setProgress";
+import { buildSetLanguageIndex } from "./setLanguage";
+
 import {
   getBackImage,
   getCard,
@@ -353,18 +355,36 @@ export interface BuyRowView {
   missing: number;
   targetPrice: number | null;
   score: number;
+  /** MISSING = da comprare; TRADE = già posseduta ma in un'altra lingua. */
+  kind: "MISSING" | "TRADE";
+  /** Lingue in cui la carta è già posseduta (solo per kind = TRADE). */
+  ownedLanguages: string[];
+  /** Lingua obiettivo del set, quando determinabile dai dati. */
+  targetLanguage: string | null;
 }
 
 export function buildBuyPriority(items: ItemRow[], limit = MAX_ROWS): BuyRowView[] {
   const groups = buildSetProgress(items).filter(
     (g) => g.total && g.missingNumbers.length > 0 && (g.percent ?? 0) > 0,
   );
+  const langIndex = buildSetLanguageIndex(items);
 
   const rows: BuyRowView[] = [];
   for (const group of groups) {
     const cost = completionCost(group);
     const percent = group.percent ?? 0;
+    const family = group.setName.trim().toLowerCase() || group.setCode?.trim().toLowerCase() || "";
+    const targetLanguage = family ? langIndex.targetOf(family) : null;
+    // A parità di priorità si favorisce la lingua obiettivo del set.
+    const languageBonus =
+      targetLanguage && group.language.toUpperCase() === targetLanguage ? 25 : 0;
+
     for (const number of group.missingNumbers) {
+      const numKey = String(Number(number.match(/\d+/)?.[0] ?? NaN));
+      const ownedLanguages = family && numKey !== "NaN"
+        ? langIndex.ownedLanguages(family, numKey).filter((l) => l !== group.language.toUpperCase())
+        : [];
+      const trade = ownedLanguages.length > 0 && targetLanguage != null;
       rows.push({
         key: `${group.key}-${number}`,
         group,
@@ -372,10 +392,19 @@ export function buildBuyPriority(items: ItemRow[], limit = MAX_ROWS): BuyRowView
         percent,
         missing: group.missingNumbers.length,
         targetPrice: cost.perCard,
-        score: percent * 10 - group.missingNumbers.length - (cost.perCard ?? 0) / 20,
+        kind: trade ? "TRADE" : "MISSING",
+        ownedLanguages,
+        targetLanguage,
+        score:
+          percent * 10 -
+          group.missingNumbers.length -
+          (cost.perCard ?? 0) / 20 +
+          languageBonus +
+          (trade ? 8 : 0),
       });
     }
   }
 
   return rows.sort((a, b) => b.score - a.score).slice(0, limit);
 }
+

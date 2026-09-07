@@ -9,6 +9,7 @@ import { itemsQuery } from "@/lib/queries";
 import { buildPortfolio, currentValue, eur, itemSubtitle, itemTitle, pct, roi } from "@/lib/calc";
 import { exportCsv, exportJson } from "@/lib/exporters";
 import { ItemPhoto } from "@/components/ItemPhoto";
+import { ItemThumb } from "@/components/ItemThumb";
 import { DECISION_LABELS, INVESTMENT_DECISIONS, getLatestDecision, getCoverImage } from "@/lib/types";
 import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
@@ -27,7 +28,9 @@ import {
   GradingPriorityList,
   QualityCheckList,
   SellPriorityList,
+  SetLanguageList,
 } from "@/components/PriorityLists";
+import { buildSetLanguageRows } from "@/lib/setLanguage";
 import {
   buildAlerts,
   incompleteItems,
@@ -95,6 +98,7 @@ function DashboardPage() {
   const gradingRows = useMemo(() => buildGradingPriority(items), [items]);
   const sellRows = useMemo(() => buildSellPriority(items), [items]);
   const buyRows = useMemo(() => buildBuyPriority(items), [items]);
+  const languageRows = useMemo(() => buildSetLanguageRows(items), [items]);
   const incomplete = useMemo(() => incompleteItems(items), [items]);
   const stale = useMemo(
     () =>
@@ -186,66 +190,94 @@ function DashboardPage() {
       </section>
 
       <section className="mb-5 grid gap-4 [&>*]:min-w-0 xl:grid-cols-2">
-        <Card>
+        <Card className="tone-qc tone-card">
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-base">Priorità quality check</CardTitle>
+              <CardTitle className="tone-title text-base">Priorità quality check</CardTitle>
               <p className="text-xs text-muted-foreground">
                 Foto e analisi necessarie per una stima affidabile.
               </p>
             </div>
-            <Badge variant="secondary">{qcRows.length}</Badge>
+            <Badge variant="outline" className="tone-badge">
+              {qcRows.length}
+            </Badge>
           </CardHeader>
           <CardContent>
             <QualityCheckList rows={qcRows} />
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="tone-grade tone-card">
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-base">Priorità grading</CardTitle>
+              <CardTitle className="tone-title text-base">Priorità grading</CardTitle>
               <p className="text-xs text-muted-foreground">
                 Solo carte con quality check completato, ordinate per convenienza.
               </p>
             </div>
-            <Badge variant="secondary">{gradingRows.length}</Badge>
+            <Badge variant="outline" className="tone-badge">
+              {gradingRows.length}
+            </Badge>
           </CardHeader>
           <CardContent>
             <GradingPriorityList rows={gradingRows} />
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="tone-sell tone-card">
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-base">Priorità vendita</CardTitle>
+              <CardTitle className="tone-title text-base">Priorità vendita</CardTitle>
               <p className="text-xs text-muted-foreground">
                 Doppioni, stock e target raggiunti, con quality check completato.
               </p>
             </div>
-            <Badge variant="secondary">{sellRows.length}</Badge>
+            <Badge variant="outline" className="tone-badge">
+              {sellRows.length}
+            </Badge>
           </CardHeader>
           <CardContent>
             <SellPriorityList rows={sellRows} />
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="tone-buy tone-card">
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-base">Priorità acquisto / set</CardTitle>
+              <CardTitle className="tone-title text-base">Priorità acquisto / set</CardTitle>
               <p className="text-xs text-muted-foreground">
-                Carte mancanti per chiudere i set che stai già collezionando.
+                Carte mancanti e upgrade di lingua per chiudere i set che collezioni.
               </p>
             </div>
-            <Badge variant="secondary">{buyRows.length}</Badge>
+            <Badge variant="outline" className="tone-badge">
+              {buyRows.length}
+            </Badge>
           </CardHeader>
           <CardContent>
             <BuyPriorityList rows={buyRows} />
           </CardContent>
         </Card>
       </section>
+
+      <section className="mb-5">
+        <Card className="tone-buy tone-card">
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="tone-title text-base">Coerenza lingua set</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Lingua obiettivo, carte fuori lingua e trade utili per un set mono-lingua.
+              </p>
+            </div>
+            <Badge variant="outline" className="tone-badge">
+              {languageRows.length}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <SetLanguageList rows={languageRows} />
+          </CardContent>
+        </Card>
+      </section>
+
 
       <section className="mb-5">
         <CardtraderRadar limit={5} />
@@ -455,11 +487,7 @@ function DashboardPage() {
             ) : (
               p.topByValue.map((i) => (
                 <div key={i.id} className="flex items-center gap-3">
-                  <ItemPhoto
-                    image={getCoverImage(i)}
-                    alt={itemTitle(i)}
-                    className="h-16 w-12 shrink-0 bg-muted/30 object-contain"
-                  />
+                  <ItemThumb item={i} className="h-16 w-12 shrink-0 bg-muted/30 object-contain" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{itemTitle(i)}</p>
                     <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>
@@ -482,11 +510,7 @@ function DashboardPage() {
             ) : (
               p.topByRoi.map((i) => (
                 <div key={i.id} className="flex items-center gap-3">
-                  <ItemPhoto
-                    image={getCoverImage(i)}
-                    alt={itemTitle(i)}
-                    className="h-16 w-12 shrink-0 bg-muted/30 object-contain"
-                  />
+                  <ItemThumb item={i} className="h-16 w-12 shrink-0 bg-muted/30 object-contain" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{itemTitle(i)}</p>
                     <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>

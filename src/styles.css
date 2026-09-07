@@ -494,3 +494,61 @@
 @utility num {
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------- Codifica semantica sezioni operative ---------- */
+.tone-qc {
+  --tone: oklch(0.8 0.13 215);
+}
+.tone-grade {
+  --tone: oklch(0.9 0.2 105);
+}
+.tone-sell {
+  --tone: oklch(0.66 0.23 25);
+}
+.tone-buy {
+  --tone: oklch(0.78 0.18 155);
+}
+
+.tone-card {
+  border-color: color-mix(in oklch, var(--tone) 45%, var(--color-border));
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--tone) 16%, transparent),
+    0 14px 42px color-mix(in oklch, var(--tone) 14%, transparent);
+}
+
+.tone-card > :first-child {
+  border-bottom: 1px solid color-mix(in oklch, var(--tone) 26%, transparent);
+  background: linear-gradient(
+    92deg,
+    color-mix(in oklch, var(--tone) 12%, transparent),
+    transparent 70%
+  );
+}
+
+.tone-title {
+  color: color-mix(in oklch, var(--tone) 78%, var(--color-foreground));
+  text-shadow: 0 0 18px color-mix(in oklch, var(--tone) 32%, transparent);
+}
+
+.tone-badge {
+  border: 1px solid color-mix(in oklch, var(--tone) 55%, transparent);
+  background: color-mix(in oklch, var(--tone) 14%, transparent);
+  color: color-mix(in oklch, var(--tone) 82%, var(--color-foreground));
+}
+
+.tone-row {
+  border-color: color-mix(in oklch, var(--tone) 30%, var(--color-border));
+  box-shadow: inset 2px 0 0 color-mix(in oklch, var(--tone) 55%, transparent);
+}
+
+.tone-accent {
+  color: color-mix(in oklch, var(--tone) 82%, var(--color-foreground));
+}
+
+/* Carte realmente gradate (slab): cornice oro riutilizzabile ovunque. */
+.thumb-graded {
+  border-color: oklch(0.85 0.14 88);
+  box-shadow:
+    0 0 0 1px oklch(0.85 0.14 88 / 0.55),
+    0 0 14px oklch(0.85 0.14 88 / 0.35);
+}

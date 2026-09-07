@@ -13,7 +13,8 @@ import { itemsQuery } from "@/lib/queries";
 import { ALMOST_COMPLETE, buildCollection } from "@/lib/collection";
 import { eur } from "@/lib/calc";
 import { stockImageFor, stockSetQuery } from "@/lib/stockImages";
-import { getCard, getCoverImage } from "@/lib/types";
+import { getCard, getCoverImage, isGradedCard } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/collezione/$setKey")({
   head: () => ({
@@ -145,7 +146,7 @@ function SetDetailPage() {
                       <ItemPhoto
                         image={cover}
                         alt={card?.card_name || card?.pokemon_name || "Carta"}
-                        className="aspect-[63/88] w-full"
+                        className={cn("aspect-[63/88] w-full", isGradedCard(item) && "thumb-graded")}
                       />
                     ) : stockUrl ? (
                       <img
