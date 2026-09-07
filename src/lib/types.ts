@@ -245,12 +245,29 @@ export const BUCKET_LABELS: Record<Bucket, string> = {
   STOCK: "Stock da vendere",
 };
 
+export interface BinderRow {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  pages: number;
+  slots_per_page: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const BINDER_COLORS = ["rosso", "blu", "verde", "oro", "nero"] as const;
+
 export interface ItemRow {
   id: string;
   user_id: string | null;
   item_type: ItemType;
   status: ItemStatus;
   bucket: Bucket;
+  binder_id: string | null;
+  binder_page: number | null;
+  binder_slot: number | null;
   qc_status: QcStatus;
   qc_completed_at: string | null;
   qc_notes: string | null;
