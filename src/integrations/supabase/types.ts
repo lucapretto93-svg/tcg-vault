@@ -55,6 +55,42 @@ export type Database = {
           },
         ]
       }
+      binders: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          pages: number
+          slots_per_page: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          pages?: number
+          slots_per_page?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          pages?: number
+          slots_per_page?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       card_images: {
         Row: {
           caption: string | null
@@ -660,6 +696,9 @@ export type Database = {
       }
       items: {
         Row: {
+          binder_id: string | null
+          binder_page: number | null
+          binder_slot: number | null
           bucket: string
           created_at: string
           id: string
@@ -674,6 +713,9 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          binder_id?: string | null
+          binder_page?: number | null
+          binder_slot?: number | null
           bucket?: string
           created_at?: string
           id?: string
@@ -688,6 +730,9 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          binder_id?: string | null
+          binder_page?: number | null
+          binder_slot?: number | null
           bucket?: string
           created_at?: string
           id?: string
@@ -701,7 +746,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "items_binder_id_fkey"
+            columns: ["binder_id"]
+            isOneToOne: false
+            referencedRelation: "binders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       market_prices: {
         Row: {

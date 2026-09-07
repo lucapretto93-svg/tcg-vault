@@ -20,6 +20,7 @@ import { Route as AuthenticatedGradingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedImpostazioniRouteImport } from './routes/_authenticated/impostazioni'
 import { Route as AuthenticatedOccasioniRouteImport } from './routes/_authenticated/occasioni'
 import { Route as AuthenticatedPrezziRouteImport } from './routes/_authenticated/prezzi'
+import { Route as AuthenticatedRaccoglitoriRouteImport } from './routes/_authenticated/raccoglitori'
 import { Route as AuthenticatedSealedRouteImport } from './routes/_authenticated/sealed'
 import { Route as AuthenticatedSetProgressRouteImport } from './routes/_authenticated/set-progress'
 import { Route as AuthenticatedVenditeRouteImport } from './routes/_authenticated/vendite'
@@ -83,6 +84,12 @@ const AuthenticatedPrezziRoute = AuthenticatedPrezziRouteImport.update({
   path: '/prezzi',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRaccoglitoriRoute =
+  AuthenticatedRaccoglitoriRouteImport.update({
+    id: '/raccoglitori',
+    path: '/raccoglitori',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSealedRoute = AuthenticatedSealedRouteImport.update({
   id: '/sealed',
   path: '/sealed',
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
   '/occasioni': typeof AuthenticatedOccasioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
+  '/raccoglitori': typeof AuthenticatedRaccoglitoriRoute
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
   '/vendite': typeof AuthenticatedVenditeRoute
@@ -154,6 +162,7 @@ export interface FileRoutesByTo {
   '/impostazioni': typeof AuthenticatedImpostazioniRoute
   '/occasioni': typeof AuthenticatedOccasioniRoute
   '/prezzi': typeof AuthenticatedPrezziRoute
+  '/raccoglitori': typeof AuthenticatedRaccoglitoriRoute
   '/sealed': typeof AuthenticatedSealedRoute
   '/set-progress': typeof AuthenticatedSetProgressRoute
   '/vendite': typeof AuthenticatedVenditeRoute
@@ -175,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/impostazioni': typeof AuthenticatedImpostazioniRoute
   '/_authenticated/occasioni': typeof AuthenticatedOccasioniRoute
   '/_authenticated/prezzi': typeof AuthenticatedPrezziRoute
+  '/_authenticated/raccoglitori': typeof AuthenticatedRaccoglitoriRoute
   '/_authenticated/sealed': typeof AuthenticatedSealedRoute
   '/_authenticated/set-progress': typeof AuthenticatedSetProgressRoute
   '/_authenticated/vendite': typeof AuthenticatedVenditeRoute
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/impostazioni'
     | '/occasioni'
     | '/prezzi'
+    | '/raccoglitori'
     | '/sealed'
     | '/set-progress'
     | '/vendite'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/impostazioni'
     | '/occasioni'
     | '/prezzi'
+    | '/raccoglitori'
     | '/sealed'
     | '/set-progress'
     | '/vendite'
@@ -235,6 +247,7 @@ export interface FileRouteTypes {
     | '/_authenticated/impostazioni'
     | '/_authenticated/occasioni'
     | '/_authenticated/prezzi'
+    | '/_authenticated/raccoglitori'
     | '/_authenticated/sealed'
     | '/_authenticated/set-progress'
     | '/_authenticated/vendite'
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPrezziRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/raccoglitori': {
+      id: '/_authenticated/raccoglitori'
+      path: '/raccoglitori'
+      fullPath: '/raccoglitori'
+      preLoaderRoute: typeof AuthenticatedRaccoglitoriRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sealed': {
       id: '/_authenticated/sealed'
       path: '/sealed'
@@ -392,6 +412,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedImpostazioniRoute: typeof AuthenticatedImpostazioniRoute
   AuthenticatedOccasioniRoute: typeof AuthenticatedOccasioniRoute
   AuthenticatedPrezziRoute: typeof AuthenticatedPrezziRoute
+  AuthenticatedRaccoglitoriRoute: typeof AuthenticatedRaccoglitoriRoute
   AuthenticatedSealedRoute: typeof AuthenticatedSealedRoute
   AuthenticatedSetProgressRoute: typeof AuthenticatedSetProgressRoute
   AuthenticatedVenditeRoute: typeof AuthenticatedVenditeRoute
@@ -408,6 +429,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedImpostazioniRoute: AuthenticatedImpostazioniRoute,
   AuthenticatedOccasioniRoute: AuthenticatedOccasioniRoute,
   AuthenticatedPrezziRoute: AuthenticatedPrezziRoute,
+  AuthenticatedRaccoglitoriRoute: AuthenticatedRaccoglitoriRoute,
   AuthenticatedSealedRoute: AuthenticatedSealedRoute,
   AuthenticatedSetProgressRoute: AuthenticatedSetProgressRoute,
   AuthenticatedVenditeRoute: AuthenticatedVenditeRoute,

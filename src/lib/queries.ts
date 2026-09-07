@@ -1,9 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { ItemRow, PurchaseRow, SaleRow } from "./types";
+import type { BinderRow, ItemRow, PurchaseRow, SaleRow } from "./types";
 
 const ITEM_SELECT = `
   id, user_id, item_type, status, bucket, is_demo, notes, created_at, updated_at,
+  binder_id, binder_page, binder_slot,
   qc_status, qc_completed_at, qc_notes,
   cards(*),
   sealed_products(*),
@@ -88,3 +89,15 @@ export async function currentUserId(): Promise<string> {
   if (!data.user) throw new Error("Non autenticato");
   return data.user.id;
 }
+
+export async function fetchBinders(): Promise<BinderRow[]> {
+  const { data, error } = await supabase
+    .from("binders")
+    .select("*")
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as BinderRow[];
+}
+
+export const bindersQuery = () =>
+  queryOptions({ queryKey: ["binders"], queryFn: fetchBinders, staleTime: 30_000 });

@@ -33,6 +33,7 @@ const NAV = [
   { to: "/sealed", label: "Sealed", icon: Package },
   { to: "/acquisti", label: "Acquisti", icon: ShoppingCart },
   { to: "/vendite", label: "Vendite", icon: Receipt },
+  { to: "/raccoglitori", label: "Raccoglitori", icon: BookOpen },
   { to: "/set-progress", label: "Set Progress", icon: Target },
   { to: "/grading", label: "Grading", icon: Award },
   { to: "/prezzi", label: "Storico Prezzi", icon: LineChart },
