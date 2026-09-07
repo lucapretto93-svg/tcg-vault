@@ -2,20 +2,15 @@ import { Link } from "@tanstack/react-router";
 import { Award, ArrowUpRight, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ItemPhoto } from "@/components/ItemPhoto";
+import { ItemThumb } from "@/components/ItemThumb";
 import { eur, itemSubtitle, itemTitle } from "@/lib/calc";
-import { getCoverImage } from "@/lib/types";
 import { MOVE_LABELS, type MoveRow } from "@/lib/actions";
 
 export function MoveItem({ row }: { row: MoveRow }) {
   const grade = row.kind === "GRADE";
   return (
     <article className="flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3">
-      <ItemPhoto
-        image={getCoverImage(row.item)}
-        alt={itemTitle(row.item)}
-        className="h-[68px] w-12 shrink-0 bg-muted/30 object-contain"
-      />
+      <ItemThumb item={row.item} className="h-[68px] w-12 shrink-0 bg-muted/30 object-contain" />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge variant={grade ? "secondary" : "default"} className="gap-1">
