@@ -28,7 +28,9 @@ import {
   GradingPriorityList,
   QualityCheckList,
   SellPriorityList,
+  SetLanguageList,
 } from "@/components/PriorityLists";
+import { buildSetLanguageRows } from "@/lib/setLanguage";
 import {
   buildAlerts,
   incompleteItems,
@@ -96,6 +98,7 @@ function DashboardPage() {
   const gradingRows = useMemo(() => buildGradingPriority(items), [items]);
   const sellRows = useMemo(() => buildSellPriority(items), [items]);
   const buyRows = useMemo(() => buildBuyPriority(items), [items]);
+  const languageRows = useMemo(() => buildSetLanguageRows(items), [items]);
   const incomplete = useMemo(() => incompleteItems(items), [items]);
   const stale = useMemo(
     () =>

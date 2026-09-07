@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Award, Check, ShoppingCart, Tag, Camera } from "lucide-react";
+import { Award, Check, Languages, ShoppingCart, Tag, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { ItemThumb } from "@/components/ItemThumb";
 import { eur, itemSubtitle, itemTitle } from "@/lib/calc";
 import { setQualityCheck } from "@/lib/mutations";
 import type { BuyRowView, GradingRowView, PriorityRow, SellRowView } from "@/lib/priorities";
+import type { SetLanguageRow } from "@/lib/setLanguage";
 
 export type ToneKey = "qc" | "grade" | "sell" | "buy";
 
@@ -233,6 +234,61 @@ export function BuyPriorityList({ rows }: { rows: BuyRowView[] }) {
           <ShoppingCart className="mr-1 h-3 w-3" /> Cerca offerte
         </Link>
       </Button>
+    </div>
+  );
+}
+
+const LANG_STATUS_TONE: Record<string, string> = {
+  MONO_IT: "tone-buy",
+  MONO_OTHER: "tone-qc",
+  MISTO: "tone-grade",
+  DA_VERIFICARE: "tone-sell",
+};
+
+export function SetLanguageList({ rows }: { rows: SetLanguageRow[] }) {
+  if (rows.length === 0) {
+    return (
+      <Empty text="Nessun set analizzabile: servono set e lingua sulle carte per valutare la coerenza." />
+    );
+  }
+  return (
+    <div className="grid gap-3 [&>*]:min-w-0 lg:grid-cols-2">
+      {rows.map((row) => (
+        <div
+          key={row.key}
+          className={`tone-row ${LANG_STATUS_TONE[row.status] ?? "tone-qc"} rounded-xl border bg-card/60 p-3`}
+        >
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="outline" className="tone-badge">
+              <Languages className="mr-1 h-3 w-3" />
+              {row.statusLabel}
+            </Badge>
+            {row.targetLanguage ? (
+              <Badge variant="outline" className="tone-badge">
+                Obiettivo {row.targetLanguage}
+              </Badge>
+            ) : null}
+          </div>
+          <p className="mt-1 truncate text-sm font-semibold">{row.setName}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {row.counts.map((c) => `${c.language} ${c.count}`).join(" / ")}
+            {row.unknownLanguage > 0 ? ` / lingua n/d ${row.unknownLanguage}` : ""}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {row.toReplace > 0
+              ? `${row.toReplace} da sostituire per il mono-lingua`
+              : "Nessuna sostituzione necessaria"}
+          </p>
+          {row.offLanguageItems.length > 0 ? (
+            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+              Fuori lingua: {row.offLanguageItems.map((i) => itemTitle(i)).join(", ")}
+            </p>
+          ) : null}
+          {row.suggestion ? (
+            <p className="tone-accent mt-1 text-xs font-medium">{row.suggestion}</p>
+          ) : null}
+        </div>
+      ))}
     </div>
   );
 }
