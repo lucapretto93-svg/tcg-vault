@@ -17,6 +17,18 @@ import { CardtraderRadar } from "@/components/CardtraderRadar";
 import { MoveList } from "@/components/MoveList";
 import { buildMoves } from "@/lib/actions";
 import {
+  buildBuyPriority,
+  buildGradingPriority,
+  buildQualityCheck,
+  buildSellPriority,
+} from "@/lib/priorities";
+import {
+  BuyPriorityList,
+  GradingPriorityList,
+  QualityCheckList,
+  SellPriorityList,
+} from "@/components/PriorityLists";
+import {
   buildAlerts,
   incompleteItems,
   movers,
@@ -79,6 +91,10 @@ function DashboardPage() {
   const mv = useMemo(() => movers(items), [items]);
   const alerts = useMemo(() => buildAlerts(items), [items]);
   const moves = useMemo(() => buildMoves(items), [items]);
+  const qcRows = useMemo(() => buildQualityCheck(items), [items]);
+  const gradingRows = useMemo(() => buildGradingPriority(items), [items]);
+  const sellRows = useMemo(() => buildSellPriority(items), [items]);
+  const buyRows = useMemo(() => buildBuyPriority(items), [items]);
   const incomplete = useMemo(() => incompleteItems(items), [items]);
   const stale = useMemo(
     () =>
@@ -165,6 +181,68 @@ function DashboardPage() {
           </CardHeader>
           <CardContent>
             <MoveList rows={moves.slice(0, 5)} />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mb-5 grid gap-4 xl:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità quality check</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Foto e analisi necessarie per una stima affidabile.
+              </p>
+            </div>
+            <Badge variant="secondary">{qcRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <QualityCheckList rows={qcRows} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità grading</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Solo carte con quality check completato, ordinate per convenienza.
+              </p>
+            </div>
+            <Badge variant="secondary">{gradingRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <GradingPriorityList rows={gradingRows} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità vendita</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Doppioni, stock e target raggiunti, con quality check completato.
+              </p>
+            </div>
+            <Badge variant="secondary">{sellRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <SellPriorityList rows={sellRows} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Priorità acquisto / set</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Carte mancanti per chiudere i set che stai già collezionando.
+              </p>
+            </div>
+            <Badge variant="secondary">{buyRows.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            <BuyPriorityList rows={buyRows} />
           </CardContent>
         </Card>
       </section>
