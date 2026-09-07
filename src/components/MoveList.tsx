@@ -55,7 +55,7 @@ export function MoveList({ rows }: { rows: MoveRow[] }) {
     );
   }
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid gap-3 [&>*]:min-w-0 lg:grid-cols-2">
       {rows.map((row) => (
         <MoveItem key={`${row.item.id}-${row.kind}`} row={row} />
       ))}

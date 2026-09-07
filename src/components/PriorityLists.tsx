@@ -89,7 +89,7 @@ export function QualityCheckList({ rows }: { rows: PriorityRow[] }) {
   };
 
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid gap-3 [&>*]:min-w-0 lg:grid-cols-2">
       {rows.map((row) => (
         <Row
           key={row.item.id}
@@ -125,7 +125,7 @@ export function GradingPriorityList({ rows }: { rows: GradingRowView[] }) {
     );
   }
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid gap-3 [&>*]:min-w-0 lg:grid-cols-2">
       {rows.map((row, index) => (
         <Row
           key={row.item.id}
@@ -156,7 +156,7 @@ export function SellPriorityList({ rows }: { rows: SellRowView[] }) {
     );
   }
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid gap-3 [&>*]:min-w-0 lg:grid-cols-2">
       {rows.map((row, index) => (
         <Row
           key={row.item.id}
