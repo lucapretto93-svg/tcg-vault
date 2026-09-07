@@ -380,8 +380,9 @@ export function buildBuyPriority(items: ItemRow[], limit = MAX_ROWS): BuyRowView
       targetLanguage && group.language.toUpperCase() === targetLanguage ? 25 : 0;
 
     for (const number of group.missingNumbers) {
-      const ownedLanguages = family
-        ? langIndex.ownedLanguages(family, number).filter((l) => l !== group.language.toUpperCase())
+      const numKey = String(Number(number.match(/\d+/)?.[0] ?? NaN));
+      const ownedLanguages = family && numKey !== "NaN"
+        ? langIndex.ownedLanguages(family, numKey).filter((l) => l !== group.language.toUpperCase())
         : [];
       const trade = ownedLanguages.length > 0 && targetLanguage != null;
       rows.push({
