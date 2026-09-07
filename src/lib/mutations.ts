@@ -417,3 +417,71 @@ export async function setQualityCheck(itemId: string, status: "pending" | "compl
     .eq("id", itemId);
   if (error) throw new Error(error.message);
 }
+
+/** ---------- Raccoglitori (binder) ---------- */
+
+export async function createBinder(input: {
+  name: string;
+  color: string;
+  pages: number;
+  slots_per_page: number;
+  notes?: string;
+}) {
+  const user_id = await currentUserId();
+  const { error } = await supabase.from("binders").insert({
+    user_id,
+    name: input.name,
+    color: input.color,
+    pages: input.pages,
+    slots_per_page: input.slots_per_page,
+    notes: input.notes || null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function updateBinder(
+  id: string,
+  patch: Partial<{ name: string; color: string; pages: number; notes: string | null }>,
+) {
+  const { error } = await supabase.from("binders").update(patch).eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteBinder(id: string) {
+  const { error: clearError } = await supabase
+    .from("items")
+    .update({ binder_id: null, binder_page: null, binder_slot: null })
+    .eq("binder_id", id);
+  if (clearError) throw new Error(clearError.message);
+  const { error } = await supabase.from("binders").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+/** Colloca un item in una tasca precisa; libera prima l'eventuale occupante. */
+export async function placeItemInBinder(input: {
+  itemId: string;
+  binderId: string;
+  page: number;
+  slot: number;
+}) {
+  const { error: freeError } = await supabase
+    .from("items")
+    .update({ binder_id: null, binder_page: null, binder_slot: null })
+    .eq("binder_id", input.binderId)
+    .eq("binder_page", input.page)
+    .eq("binder_slot", input.slot);
+  if (freeError) throw new Error(freeError.message);
+  const { error } = await supabase
+    .from("items")
+    .update({ binder_id: input.binderId, binder_page: input.page, binder_slot: input.slot })
+    .eq("id", input.itemId);
+  if (error) throw new Error(error.message);
+}
+
+export async function removeItemFromBinder(itemId: string) {
+  const { error } = await supabase
+    .from("items")
+    .update({ binder_id: null, binder_page: null, binder_slot: null })
+    .eq("id", itemId);
+  if (error) throw new Error(error.message);
+}
