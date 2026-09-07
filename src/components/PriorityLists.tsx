@@ -30,7 +30,7 @@ function Row({
       <ItemPhoto
         image={getCoverImage(row.item)}
         alt={itemTitle(row.item)}
-        className="h-20 w-14 shrink-0 bg-muted/30 object-contain"
+        className="h-[68px] w-12 shrink-0 bg-muted/30 object-contain"
       />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -45,7 +45,7 @@ function Row({
         <p className="mt-1 text-xs text-muted-foreground">{row.reasons.join(" · ")}</p>
         {action ? <div className="mt-2">{action}</div> : null}
       </div>
-      <div className="shrink-0 text-right">
+      <div className="w-20 shrink-0 text-right">
         {row.amount != null ? (
           <>
             <p className="text-[11px] text-muted-foreground">{row.amountLabel}</p>
@@ -204,7 +204,7 @@ export function BuyPriorityList({ rows }: { rows: BuyRowView[] }) {
               {row.missing} mancanti
             </p>
           </div>
-          <div className="shrink-0 text-right">
+          <div className="w-20 shrink-0 text-right">
             <Badge variant="secondary">Priorità {index + 1}</Badge>
             <p className="mt-1 text-xs text-muted-foreground">
               {row.targetPrice != null ? `Target ${eur(row.targetPrice)}` : "Target n/d"}
