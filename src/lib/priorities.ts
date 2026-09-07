@@ -9,6 +9,8 @@ import {
 } from "./calc";
 import { latestValuePrice, priceChange, priceFreshness } from "./analytics";
 import { buildSetProgress, completionCost, type SetGroup } from "./setProgress";
+import { buildSetLanguageIndex } from "./setLanguage";
+
 import {
   getBackImage,
   getCard,
