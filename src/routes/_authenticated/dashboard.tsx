@@ -185,7 +185,7 @@ function DashboardPage() {
         </Card>
       </section>
 
-      <section className="mb-5 grid gap-4 xl:grid-cols-2">
+      <section className="mb-5 grid gap-4 [&>*]:min-w-0 xl:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <div>
@@ -253,7 +253,7 @@ function DashboardPage() {
 
 
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 [&>*]:min-w-0 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Carte" value={String(p.cardCount)} hint="in collezione" />
         <Metric label="Sealed" value={String(p.sealedCount)} hint="pezzi totali" />
         <Metric label="Capitale investito" value={eur(p.invested)} />
@@ -265,7 +265,7 @@ function DashboardPage() {
       </div>
 
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -320,7 +320,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Top gainers</CardTitle>
@@ -384,7 +384,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Dati da completare</CardTitle>
@@ -444,7 +444,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Top per valore</CardTitle>
@@ -505,7 +505,7 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 [&>*]:min-w-0 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Strategie attive</CardTitle>
