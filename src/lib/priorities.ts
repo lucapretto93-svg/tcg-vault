@@ -1,6 +1,7 @@
 import {
   currentValue,
   expectedGradedValue,
+  latestPrice,
   gradingCost,
   latestCondition,
   latestGrading,
@@ -19,7 +20,6 @@ import {
   type ItemRow,
   type PriceType,
 } from "./types";
-import { latestPrice } from "./calc";
 
 export const MAX_ROWS = 10;
 

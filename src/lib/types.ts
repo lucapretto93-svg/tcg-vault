@@ -236,6 +236,8 @@ export interface SaleItemRow {
   sales: SaleRow | null;
 }
 
+export type QcStatus = "pending" | "completed";
+
 export type Bucket = "COLLECTION" | "STOCK";
 export const BUCKETS: Bucket[] = ["COLLECTION", "STOCK"];
 export const BUCKET_LABELS: Record<Bucket, string> = {
@@ -249,6 +251,9 @@ export interface ItemRow {
   item_type: ItemType;
   status: ItemStatus;
   bucket: Bucket;
+  qc_status: QcStatus;
+  qc_completed_at: string | null;
+  qc_notes: string | null;
   is_demo: boolean;
   notes: string | null;
   created_at: string;
