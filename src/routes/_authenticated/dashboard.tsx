@@ -333,7 +333,7 @@ function DashboardPage() {
             ) : (
               mv.gainers.map(({ item, change }) => (
                 <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate">{itemTitle(item)}</span>
+                  <span className="min-w-0 truncate">{itemTitle(item)}</span>
                   <Badge>{`+${eur(change.abs)}`}</Badge>
                 </div>
               ))
@@ -351,7 +351,7 @@ function DashboardPage() {
             ) : (
               mv.losers.map(({ item, change }) => (
                 <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate">{itemTitle(item)}</span>
+                  <span className="min-w-0 truncate">{itemTitle(item)}</span>
                   <Badge variant="destructive">{eur(change.abs)}</Badge>
                 </div>
               ))
@@ -395,7 +395,7 @@ function DashboardPage() {
             ) : (
               incomplete.slice(0, 8).map((row) => (
                 <div key={row.item.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate">{itemTitle(row.item)}</span>
+                  <span className="min-w-0 truncate">{itemTitle(row.item)}</span>
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {row.missing.join(", ")}
                   </span>
@@ -545,7 +545,7 @@ function DashboardPage() {
                   key={`${t.group.key}-${t.number}`}
                   className="flex items-center justify-between gap-3 text-sm"
                 >
-                  <span className="truncate">
+                  <span className="min-w-0 truncate">
                     {t.group.setName} — #{t.number}
                   </span>
                   <Badge variant="secondary" className="shrink-0">
