@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ItemPhoto } from "@/components/ItemPhoto";
+import { ItemThumb } from "@/components/ItemThumb";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { itemsQuery } from "@/lib/queries";
 import { deleteItem, setItemBucket } from "@/lib/mutations";
@@ -206,11 +207,7 @@ function CartePage() {
                 <TableRow key={i.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <ItemPhoto
-                        image={getCoverImage(i)}
-                        alt={itemTitle(i)}
-                        className="h-14 w-10 shrink-0 bg-muted/30 object-contain"
-                      />
+                      <ItemThumb item={i} className="h-14 w-10 shrink-0 bg-muted/30 object-contain" />
                       <div className="min-w-0">
                         <p className="font-medium">{itemTitle(i)}</p>
                         <p className="text-xs text-muted-foreground">{itemSubtitle(i)}</p>
@@ -279,11 +276,7 @@ function CartePage() {
             return (
               <Card key={i.id} className="overflow-hidden">
                 <CardContent className="flex gap-3 p-3 sm:p-4">
-                  <ItemPhoto
-                    image={getCoverImage(i)}
-                    alt={itemTitle(i)}
-                    className="h-32 w-24 shrink-0 bg-muted/30 object-contain sm:h-36 sm:w-28"
-                  />
+                  <ItemThumb item={i} className="h-32 w-24 shrink-0 bg-muted/30 object-contain sm:h-36 sm:w-28" />
                   <div className="flex min-w-0 flex-1 flex-col">
                     <p className="truncate text-sm font-semibold">{itemTitle(i)}</p>
                     <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>

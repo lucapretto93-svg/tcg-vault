@@ -9,6 +9,7 @@ import { itemsQuery } from "@/lib/queries";
 import { buildPortfolio, currentValue, eur, itemSubtitle, itemTitle, pct, roi } from "@/lib/calc";
 import { exportCsv, exportJson } from "@/lib/exporters";
 import { ItemPhoto } from "@/components/ItemPhoto";
+import { ItemThumb } from "@/components/ItemThumb";
 import { DECISION_LABELS, INVESTMENT_DECISIONS, getLatestDecision, getCoverImage } from "@/lib/types";
 import { buildSetProgress, setCompletionTargets } from "@/lib/setProgress";
 import { Activity, Database, ScanLine, ShieldCheck } from "lucide-react";
@@ -455,11 +456,7 @@ function DashboardPage() {
             ) : (
               p.topByValue.map((i) => (
                 <div key={i.id} className="flex items-center gap-3">
-                  <ItemPhoto
-                    image={getCoverImage(i)}
-                    alt={itemTitle(i)}
-                    className="h-16 w-12 shrink-0 bg-muted/30 object-contain"
-                  />
+                  <ItemThumb item={i} className="h-16 w-12 shrink-0 bg-muted/30 object-contain" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{itemTitle(i)}</p>
                     <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>
@@ -482,11 +479,7 @@ function DashboardPage() {
             ) : (
               p.topByRoi.map((i) => (
                 <div key={i.id} className="flex items-center gap-3">
-                  <ItemPhoto
-                    image={getCoverImage(i)}
-                    alt={itemTitle(i)}
-                    className="h-16 w-12 shrink-0 bg-muted/30 object-contain"
-                  />
+                  <ItemThumb item={i} className="h-16 w-12 shrink-0 bg-muted/30 object-contain" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{itemTitle(i)}</p>
                     <p className="truncate text-xs text-muted-foreground">{itemSubtitle(i)}</p>

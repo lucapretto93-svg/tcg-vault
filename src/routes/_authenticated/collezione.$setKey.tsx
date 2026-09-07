@@ -145,7 +145,7 @@ function SetDetailPage() {
                       <ItemPhoto
                         image={cover}
                         alt={card?.card_name || card?.pokemon_name || "Carta"}
-                        className="aspect-[63/88] w-full"
+                        className={cn("aspect-[63/88] w-full", slot.item && isGradedCard(slot.item) && "thumb-graded")}
                       />
                     ) : stockUrl ? (
                       <img
