@@ -666,6 +666,9 @@ export type Database = {
           is_demo: boolean
           item_type: string
           notes: string | null
+          qc_completed_at: string | null
+          qc_notes: string | null
+          qc_status: string
           status: string
           updated_at: string
           user_id: string | null
@@ -677,6 +680,9 @@ export type Database = {
           is_demo?: boolean
           item_type: string
           notes?: string | null
+          qc_completed_at?: string | null
+          qc_notes?: string | null
+          qc_status?: string
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -688,6 +694,9 @@ export type Database = {
           is_demo?: boolean
           item_type?: string
           notes?: string | null
+          qc_completed_at?: string | null
+          qc_notes?: string | null
+          qc_status?: string
           status?: string
           updated_at?: string
           user_id?: string | null
