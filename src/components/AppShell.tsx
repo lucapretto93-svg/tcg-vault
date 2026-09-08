@@ -15,6 +15,7 @@ import {
   Menu,
   LogOut,
   MoreHorizontal,
+  BookOpen,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
