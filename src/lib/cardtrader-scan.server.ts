@@ -263,7 +263,7 @@ export async function scanCardtraderForUser(userId: string): Promise<ScanResult>
         const push = await sendPushToUser(userId, {
           title: `Affare −${deal["discount_pct"]}% · ${deal["card_name"]}`,
           body: `${deal["price"]} € (benchmark ${deal["benchmark"]} €) · ${deal["condition"]} ${deal["language"] ?? ""}`,
-          url: "/dashboard",
+          url: String(deal["url"]),
           tag: `deal-${deal["product_id"]}`,
         });
         sent = push.sent > 0 || sent;
