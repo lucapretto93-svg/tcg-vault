@@ -23,11 +23,24 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/dashboard";
+  const fallback = new URL("/dashboard", self.location.origin);
+  let target = fallback;
+  try {
+    const candidate = new URL(event.notification.data?.url || fallback.href, self.location.origin);
+    if (
+      candidate.origin === self.location.origin ||
+      (candidate.protocol === "https:" &&
+        ["cardtrader.com", "www.cardtrader.com"].includes(candidate.hostname) &&
+        !candidate.username && !candidate.password)
+    ) target = candidate;
+  } catch {
+    // Older or malformed notifications retain the dashboard fallback.
+  }
+  const url = target.href;
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if ("focus" in client) return client.focus();
+        if (client.url === url && "focus" in client) return client.focus();
       }
       return self.clients.openWindow(url);
     }),
